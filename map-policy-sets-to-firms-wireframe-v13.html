@@ -1,0 +1,824 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Map Policy Sets to Firms (Wireframe)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --line:#111111;
+      --line2:#bdbdbd;
+      --radius:10px;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:var(--sans); background:var(--bg); color:var(--text)}
+    a{color:inherit}
+
+    .topbar{position:sticky; top:0; z-index:20; background:#fff; border-bottom:2px solid var(--line)}
+    .topbar-inner{max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; padding:12px 16px}
+    .brand{display:flex; gap:10px; align-items:center; font-weight:900}
+    .logo{width:18px; height:18px; border:2px solid var(--line); background:#fff}
+    .pill{border:2px solid var(--line); background:#fff; border-radius:999px; padding:6px 10px; font-size:12px; font-weight:800}
+    .container{max-width:none; margin:0; padding:0}
+
+    .pageShell{
+      display:flex;
+      flex-direction:column;
+      height:calc(100vh - 52px); /* approx topbar height */
+      max-width:1100px;
+      margin:0 auto;
+      padding:18px 16px 16px;
+    }
+    .pageHeaderFixed{
+      flex:0 0 auto;
+      background:#fff;
+      padding-bottom:12px;
+    }
+    .tableRegion{
+      flex:1 1 auto;
+      overflow:auto;
+      padding-bottom:12px;
+    }
+    body.hasAction .tableRegion{
+      padding-bottom:110px; /* room for action bar only when shown */
+    }
+
+
+    .title{font-size:26px; font-weight:900; letter-spacing:-.2px; margin:0}
+    .subtitle{margin:8px 0 0; color:var(--muted); line-height:1.35}
+
+    .card{background:#fff; border:2px solid var(--line); border-radius:var(--radius)}
+    .panel{padding:12px; border-radius:var(--radius); border:2px solid var(--line2); background:#fff; margin-top:12px}
+
+    .tabs{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap}
+    .tab{
+      border:2px solid var(--line);
+      border-radius:999px;
+      padding:8px 12px;
+      font-weight:900;
+      font-size:13px;
+      cursor:pointer;
+      background:#fff;
+    }
+    .tab.active{background:#111; color:#fff}
+    .tab:hover{background:#f5f5f5}
+    .tab.active:hover{background:#000}
+
+    .toolbar{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-top:12px}
+    .input{border:2px solid var(--line); background:#fff; color:var(--text); border-radius:10px; padding:9px 12px; font-size:13px; width:360px; outline:none; font-weight:700}
+    button{font-family:inherit; border:2px solid var(--line); background:#fff; color:var(--text); padding:9px 12px; border-radius:10px; cursor:pointer; font-weight:900; font-size:13px}
+    button:hover{background:#f5f5f5}
+    .primary{background:#111; color:#fff}
+    .primary:hover{background:#000}
+    .quiet{border-color:var(--line2); color:var(--muted); font-weight:800}
+    .linkbtn{background:transparent; border:none; padding:0; text-decoration:underline; font-weight:900; cursor:pointer; font-size:13px}
+
+    .tablewrap{margin-top:12px; border:2px solid var(--line); border-radius:var(--radius); overflow:hidden}
+    table{width:100%; border-collapse:collapse; font-size:13px}
+    thead{background:#f5f5f5; color:var(--text); font-weight:900}
+    th, td{padding:10px 10px; border-bottom:2px solid var(--line2); text-align:left; vertical-align:top}
+    tbody tr:hover{background:#fafafa}
+    .check{width:18px; height:18px}
+    .rollup{font-weight:900; text-decoration:underline; cursor:pointer}
+    .muted{color:var(--muted)}
+    .kbd{font-family:var(--mono); font-size:11px; color:var(--muted); border:2px solid var(--line2); padding:3px 8px; border-radius:999px}
+
+    /* Action bar when selection exists */
+    .actionbar{
+      position:fixed; left:0; right:0; bottom:0; z-index:30;
+      background:#fff; border-top:2px solid var(--line);
+    }
+    .actionbar-inner{
+      max-width:1100px; margin:0 auto;
+      padding:10px 16px;
+      display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;
+    }
+    .hidden{display:none !important}
+
+    /* Left drawer */
+    .drawerOverlay{
+      position:fixed; inset:0; background:rgba(0,0,0,.25);
+      display:none; z-index:60;
+      align-items:stretch; justify-content:flex-end;
+    }
+    .drawer{
+      width:min(520px, 92vw);
+      background:#fff;
+      border-left:2px solid var(--line);
+      padding:14px;
+      overflow:auto;
+    }
+    .drawer h3{margin:0 0 6px; font-size:16px; font-weight:900}
+    .drawer p{margin:0; color:var(--muted); font-weight:700; line-height:1.35; font-size:13px}
+    .drawer .row{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:2px solid var(--line2)}
+    .drawer .row:last-child{border-bottom:none}
+    .toggle{
+      border:2px solid var(--line);
+      border-radius:999px;
+      padding:4px 8px;
+      font-weight:900;
+      font-size:12px;
+      cursor:pointer;
+      background:#fff;
+      white-space:nowrap;
+    }
+    .toggle.active{background:#111; color:#fff}
+    .toggle.active:hover{background:#000}
+
+    /* Map modal */
+    .modalOverlay{
+      position:fixed; inset:0; background:rgba(0,0,0,.25);
+      display:none; z-index:70;
+      align-items:center; justify-content:center;
+      padding:16px;
+    }
+    .modal{
+      width:min(720px, 96vw);
+      background:#fff;
+      border:2px solid var(--line);
+      border-radius:var(--radius);
+      padding:14px;
+      max-height:82vh;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+    .modalHeader{
+      display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;
+      padding-bottom:10px;
+      border-bottom:2px solid var(--line2);
+    }
+    .modalHeader h3{margin:0 0 6px; font-size:16px; font-weight:900}
+    .modalHeader p{margin:0; color:var(--muted); font-weight:700; line-height:1.35; font-size:13px}
+    .modalBodyScroll{
+      overflow:auto;
+      padding-top:12px;
+      padding-bottom:12px;
+      flex:1 1 auto;
+    }
+    .modalFooterFixed{
+      border-top:2px solid var(--line2);
+      padding-top:12px;
+      display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap;
+      flex:0 0 auto;
+      background:#fff;
+    }
+    .modal h3{margin:0 0 6px; font-size:16px; font-weight:900}
+    .modal p{margin:0; color:var(--muted); font-weight:700; line-height:1.35; font-size:13px}
+    .listbox{border:2px solid var(--line); border-radius:var(--radius); margin-top:12px; overflow:hidden}
+    .listbox .head{padding:10px 12px; border-bottom:2px solid var(--line2); display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; background:#f5f5f5}
+    .listbox .item{padding:10px 12px; border-bottom:2px solid var(--line2); display:flex; justify-content:space-between; align-items:center; gap:10px}
+    .listbox .item:last-child{border-bottom:none}
+    .row2col{display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%}
+    .rowLeft{display:flex; flex-direction:column; gap:4px}
+    .rowRight{display:grid; grid-template-columns:auto 28px; gap:14px; align-items:center; justify-content:end}
+
+    .badge{border:2px solid var(--line); border-radius:999px; padding:2px 8px; font-weight:900; font-size:11px}
+    
+    .switchWrap{display:flex; align-items:center; gap:10px; justify-content:flex-end}
+    .switchLabel{font-weight:900; min-width:86px; text-align:right}
+    .switch{
+      position:relative; width:44px; height:24px;
+      border:2px solid var(--line); border-radius:999px;
+      background:#fff; cursor:pointer; flex:0 0 auto;
+    }
+    .switch::after{
+      content:""; position:absolute; top:3px; left:3px;
+      width:16px; height:16px; border-radius:999px;
+      background:#111; transition:transform .12s ease, background .12s ease;
+    }
+    .switch.on{background:#111}
+    .switch.on::after{transform:translateX(20px); background:#fff}
+
+    
+    
+    @media (max-width:980px){
+      .input{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>Wireframe Prototype</div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center">
+        <div class="pill">Help</div>
+        <div class="pill">David</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="pageShell">
+      <div class="pageHeaderFixed">
+<h1 class="title">Map Policy Sets to Firms</h1>
+    <p class="subtitle">
+      Apply Policy Sets to Firms (or view from either side). Use the rollup counts to inspect and modify whether mappings are <strong>Required</strong> or <strong>Optional</strong>.
+    </p>
+
+    <div class="tabs">
+      <div class="tab active" id="tabPolicySets" onclick="switchView('policySets')">Policy Sets</div>
+      <div class="tab" id="tabFirms" onclick="switchView('firms')">Firms</div>
+    </div>
+
+    <div class="toolbar">
+      <input id="search" class="input" placeholder="Search…" oninput="render()" />
+      <div class="kbd" id="selectionHint">No rows selected</div>
+    </div>
+      </div>
+      <div class="tableRegion">
+<!-- POLICY SETS TABLE -->
+    <div id="policySetsView">
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:42px"><input type="checkbox" class="check" onclick="toggleSelectAll(this)" /></th>
+              <th style="cursor:pointer" onclick="setSort('name')">Policy set name</th>
+              <th style="cursor:pointer" onclick="setSort('rollup')">Firms</th>
+              <th style="cursor:pointer" onclick="setSort('created')">Created</th>
+              <th style="cursor:pointer" onclick="setSort('modified')">Last modified</th>
+              <th style="cursor:pointer" onclick="setSort('by')">Created by</th>
+            </tr>
+          </thead>
+          <tbody id="policySetsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- FIRMS TABLE -->
+    <div id="firmsView" class="hidden">
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:42px"><input type="checkbox" class="check" onclick="toggleSelectAll(this)" /></th>
+              <th style="cursor:pointer" onclick="setSort('name')">Firm name</th>
+              <th style="cursor:pointer" onclick="setSort('rollup')">Policy sets</th>
+              <th style="cursor:pointer" onclick="setSort('status')">Status</th>
+              <th style="cursor:pointer" onclick="setSort('modified')">Last modified</th>
+              <th style="cursor:pointer" onclick="setSort('owner')">Owner</th>
+            </tr>
+          </thead>
+          <tbody id="firmsBody"></tbody>
+        </table>
+      </div>
+    </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTION BAR -->
+  <div id="actionbar" class="actionbar hidden">
+    <div class="actionbar-inner">
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+        <div style="font-weight:900" id="selectedCount">0 selected</div>
+        <div class="kbd" id="actionContext">—</div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+        <button class="quiet" onclick="clearSelection()">Clear</button>
+        <button class="primary" onclick="openMapModal()">Map to…</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEFT DRAWER -->
+  <div id="drawerOverlay" class="drawerOverlay" onclick="closeDrawer(event)">
+    <div class="drawer" onclick="event.stopPropagation()">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px">
+        <div>
+          <div style="font-weight:900">Mappings</div>
+          <div class="muted" style="font-weight:800; margin-top:4px" id="drawerSub"></div>
+        </div>
+        <button class="quiet" onclick="hideDrawer()">Close</button>
+      </div>
+      <div class="divider"></div>
+      <div id="drawerList"></div>
+    </div>
+  </div>
+
+  <!-- MAP MODAL -->
+  <div id="modalOverlay" class="modalOverlay" onclick="closeModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modalHeader">
+        <div>
+          <h3 id="modalTitle">Map</h3>
+          <p id="modalDesc">Choose targets and mark mappings as Required or Optional.</p>
+        </div>
+        <button class="quiet" onclick="hideModal()">Close</button>
+      </div>
+
+      <div class="modalBodyScroll">
+        <div class="listbox">
+          <div class="head">
+            <div style="font-weight:900" id="modalListTitle">Targets</div>
+            <input class="input" style="width:260px" id="modalSearch" placeholder="Search targets…" oninput="renderModalList()" />
+          </div>
+          <div id="modalList"></div>
+        </div>
+      </div>
+
+      <div class="modalFooterFixed">
+        <button class="quiet" onclick="hideModal()">Cancel</button>
+        <button class="primary" onclick="confirmMapping()">Apply</button>
+      </div>
+
+        </div>
+      </div>
+          </div>
+        </div>
+</div>
+      <div class="modalFooterSticky">
+        <button class="quiet" onclick="hideModal()">Cancel</button>
+        <button class="primary" onclick="confirmMapping()">Apply</button>
+      </div>
+
+</div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="hidden" style="position:fixed; left:50%; transform:translateX(-50%); bottom:86px; background:#fff; border:2px solid var(--line); padding:8px 10px; border-radius:999px; color:var(--text); font-size:13px; z-index:80; font-weight:900;"></div>
+
+<script>
+
+  let view = "policySets"; // or firms
+  let sortState = { key: null, dir: "asc" }; // dir: asc|desc
+ // or firms
+
+  // Demo data (expanded for scroll)
+  const policySets = [
+    { id:"PS-001", name:"Carrier A – Life/Annuity – Southwest", created:"2026-02-01", modified:"2026-02-08", by:"David", firms:["F-001","F-002","F-004"] },
+    { id:"PS-002", name:"Carrier B – P&C – Midwest", created:"2026-01-15", modified:"2026-02-02", by:"Alyssa", firms:["F-003","F-007"] },
+    { id:"PS-003", name:"Carrier C – Life – National", created:"2025-12-20", modified:"2026-01-30", by:"Sam", firms:["F-001","F-003","F-005","F-006"] },
+    { id:"PS-004", name:"Carrier D – Annuity – Northeast", created:"2026-01-05", modified:"2026-02-05", by:"Jordan", firms:["F-008","F-009"] },
+    { id:"PS-005", name:"Carrier E – Health – West", created:"2025-11-18", modified:"2026-01-25", by:"Priya", firms:["F-010"] },
+    { id:"PS-006", name:"Carrier F – P&C – National", created:"2026-02-03", modified:"2026-02-09", by:"David", firms:["F-001","F-011","F-012"] },
+    { id:"PS-007", name:"Carrier G – Life – Midwest", created:"2025-12-02", modified:"2026-01-14", by:"Alyssa", firms:["F-013","F-014"] },
+    { id:"PS-008", name:"Carrier H – Specialty – National", created:"2025-10-29", modified:"2026-01-09", by:"Sam", firms:["F-015"] },
+    { id:"PS-009", name:"Carrier I – Life – Southeast", created:"2026-01-22", modified:"2026-02-06", by:"Jordan", firms:["F-016","F-017"] },
+    { id:"PS-010", name:"Carrier J – Annuity – Southwest", created:"2025-09-12", modified:"2026-01-02", by:"Priya", firms:["F-018"] },
+    { id:"PS-011", name:"Carrier K – P&C – Northeast", created:"2026-02-04", modified:"2026-02-07", by:"David", firms:["F-009","F-019"] },
+    { id:"PS-012", name:"Carrier L – Life – National (Legacy)", created:"2024-12-18", modified:"2025-11-20", by:"Ops", firms:["F-020","F-021","F-022"] },
+  ];
+
+  const firms = [
+    { id:"F-001", name:"Acme Insurance Agency", status:"Active", modified:"2026-02-07", owner:"Ops Team", policySets:["PS-001","PS-003","PS-006"] },
+    { id:"F-002", name:"Northstar Financial Group", status:"Active", modified:"2026-02-04", owner:"CSM", policySets:["PS-001"] },
+    { id:"F-003", name:"Summit Brokerage Partners", status:"Onboarding", modified:"2026-02-01", owner:"Ops Team", policySets:["PS-002","PS-003"] },
+    { id:"F-004", name:"Pioneer Advisors LLC", status:"Active", modified:"2026-01-29", owner:"Ops Team", policySets:["PS-001"] },
+    { id:"F-005", name:"Evergreen Wealth", status:"Active", modified:"2026-02-06", owner:"CSM", policySets:["PS-003"] },
+    { id:"F-006", name:"Canyon Ridge Brokerage", status:"Onboarding", modified:"2026-01-26", owner:"Ops Team", policySets:["PS-003"] },
+    { id:"F-007", name:"Blue River Agency", status:"Active", modified:"2026-02-03", owner:"Ops Team", policySets:["PS-002"] },
+    { id:"F-008", name:"Atlas Partners", status:"Active", modified:"2026-02-02", owner:"CSM", policySets:["PS-004"] },
+    { id:"F-009", name:"Granite Financial", status:"Active", modified:"2026-02-08", owner:"Ops Team", policySets:["PS-004","PS-011"] },
+    { id:"F-010", name:"Sequoia Benefits", status:"Onboarding", modified:"2026-01-31", owner:"Ops Team", policySets:["PS-005"] },
+    { id:"F-011", name:"Horizon Brokerage", status:"Active", modified:"2026-02-05", owner:"CSM", policySets:["PS-006"] },
+    { id:"F-012", name:"Silverline Advisors", status:"Active", modified:"2026-02-04", owner:"Ops Team", policySets:["PS-006"] },
+    { id:"F-013", name:"Prairie Insurance Group", status:"Onboarding", modified:"2026-01-28", owner:"Ops Team", policySets:["PS-007"] },
+    { id:"F-014", name:"Lakeside Financial", status:"Active", modified:"2026-01-30", owner:"CSM", policySets:["PS-007"] },
+    { id:"F-015", name:"Summit Specialty Markets", status:"Active", modified:"2026-02-01", owner:"Ops Team", policySets:["PS-008"] },
+    { id:"F-016", name:"Coastal Advisors", status:"Active", modified:"2026-02-06", owner:"CSM", policySets:["PS-009"] },
+    { id:"F-017", name:"Gulfside Agency", status:"Onboarding", modified:"2026-02-02", owner:"Ops Team", policySets:["PS-009"] },
+    { id:"F-018", name:"Desert Ridge Financial", status:"Active", modified:"2026-01-22", owner:"Ops Team", policySets:["PS-010"] },
+    { id:"F-019", name:"Harbor Insurance Partners", status:"Active", modified:"2026-02-07", owner:"CSM", policySets:["PS-011"] },
+    { id:"F-020", name:"Legacy West Brokerage", status:"Active", modified:"2025-11-20", owner:"Ops", policySets:["PS-012"] },
+    { id:"F-021", name:"Legacy Midwest Agency", status:"Active", modified:"2025-11-20", owner:"Ops", policySets:["PS-012"] },
+    { id:"F-022", name:"Legacy Northeast Partners", status:"Active", modified:"2025-11-20", owner:"Ops", policySets:["PS-012"] },
+  ];
+
+  // mapping meta: (policySetId -> firmId -> {type})
+  let mappingMeta = {
+    "PS-001": { "F-001": {type:"default"}, "F-002": {type:"optional"}, "F-004": {type:"default"} },
+    "PS-002": { "F-003": {type:"default"}, "F-007": {type:"optional"} },
+    "PS-003": { "F-001": {type:"optional"}, "F-003": {type:"default"}, "F-005": {type:"default"}, "F-006": {type:"optional"} },
+    "PS-004": { "F-008": {type:"default"}, "F-009": {type:"optional"} },
+    "PS-005": { "F-010": {type:"default"} },
+    "PS-006": { "F-001": {type:"default"}, "F-011": {type:"optional"}, "F-012": {type:"default"} },
+    "PS-007": { "F-013": {type:"default"}, "F-014": {type:"optional"} },
+    "PS-008": { "F-015": {type:"default"} },
+    "PS-009": { "F-016": {type:"default"}, "F-017": {type:"optional"} },
+    "PS-010": { "F-018": {type:"default"} },
+    "PS-011": { "F-009": {type:"default"}, "F-019": {type:"optional"} },
+    "PS-012": { "F-020": {type:"default"}, "F-021": {type:"default"}, "F-022": {type:"optional"} },
+  };
+
+  let selected = new Set(); // ids based on current view
+
+  // Map modal state
+  let modalSelectedTargets = new Set();
+  let modalRowTypes = {}; // id -> 'default' | 'optional'
+  let applyAllType = "default";
+
+  function $(id){ return document.getElementById(id); }
+
+  function switchView(next){
+    view = next;
+    selected = new Set();
+    modalSelectedTargets = new Set();
+    modalRowTypes = {};
+    $("tabPolicySets").classList.toggle("active", view==="policySets");
+    $("tabFirms").classList.toggle("active", view==="firms");
+    $("policySetsView").classList.toggle("hidden", view!=="policySets");
+    $("firmsView").classList.toggle("hidden", view!=="firms");
+    $("search").value = "";
+    updateActionbar();
+    render();
+  }
+
+
+  function setSort(key){
+    if(sortState.key === key){
+      sortState.dir = (sortState.dir === "asc") ? "desc" : "asc";
+    } else {
+      sortState.key = key;
+      sortState.dir = "asc";
+    }
+    render();
+  }
+
+  function cmp(a,b){
+    if(a === b) return 0;
+    if(a === null || a === undefined) return -1;
+    if(b === null || b === undefined) return 1;
+    // dates YYYY-MM-DD compare lexicographically OK
+    if(typeof a === "string" && typeof b === "string") return a.localeCompare(b);
+    return (a < b) ? -1 : 1;
+  }
+
+  function applySort(rows){
+    if(!sortState.key) return rows;
+    const dir = sortState.dir === "asc" ? 1 : -1;
+    const key = sortState.key;
+    return [...rows].sort((r1,r2)=>{
+      let a,b;
+      if(view === "policySets"){
+        if(key === "rollup"){ a = (r1.firms||[]).length; b = (r2.firms||[]).length; }
+        else a = r1[key]; b = r2[key];
+      } else {
+        if(key === "rollup"){ a = (r1.policySets||[]).length; b = (r2.policySets||[]).length; }
+        else a = r1[key]; b = r2[key];
+      }
+      return dir * cmp(a,b);
+    });
+  }
+
+  function render(){
+    const q = ($("search").value || "").toLowerCase().trim();
+
+    if(view === "policySets"){
+      let rows = policySets.filter(ps => ps.name.toLowerCase().includes(q));
+      rows = applySort(rows);
+      $("policySetsBody").innerHTML = rows.map(ps => {
+        const count = (ps.firms || []).length;
+        return `
+          <tr>
+            <td><input type="checkbox" class="check" ${selected.has(ps.id)?"checked":""} onchange="toggleRow('${ps.id}', this.checked)" /></td>
+            <td><strong>${escapeHtml(ps.name)}</strong></td>
+            <td><span class="rollup" onclick="openDrawer('policySet','${ps.id}')">${count}</span></td>
+            <td>${ps.created}</td>
+            <td>${ps.modified}</td>
+            <td>${escapeHtml(ps.by)}</td>
+          </tr>
+        `;
+      }).join("");
+    } else {
+      let rows = firms.filter(f => f.name.toLowerCase().includes(q));
+      rows = applySort(rows);
+      $("firmsBody").innerHTML = rows.map(f => {
+        const count = (f.policySets || []).length;
+        return `
+          <tr>
+            <td><input type="checkbox" class="check" ${selected.has(f.id)?"checked":""} onchange="toggleRow('${f.id}', this.checked)" /></td>
+            <td><strong>${escapeHtml(f.name)}</strong></td>
+            <td><span class="rollup" onclick="openDrawer('firm','${f.id}')">${count}</span></td>
+            <td>${escapeHtml(f.status)}</td>
+            <td>${f.modified}</td>
+            <td>${escapeHtml(f.owner)}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    updateActionbar();
+  }
+
+  function toggleRow(id, on){
+    if(on) selected.add(id);
+    else selected.delete(id);
+    updateActionbar();
+  }
+
+  function toggleSelectAll(cb){
+    const q = ($("search").value || "").toLowerCase().trim();
+    if(view === "policySets"){
+      const ids = policySets.filter(ps => ps.name.toLowerCase().includes(q)).map(ps => ps.id);
+      ids.forEach(id => cb.checked ? selected.add(id) : selected.delete(id));
+    } else {
+      const ids = firms.filter(f => f.name.toLowerCase().includes(q)).map(f => f.id);
+      ids.forEach(id => cb.checked ? selected.add(id) : selected.delete(id));
+    }
+    render();
+  }
+
+  function updateActionbar(){
+    const count = selected.size;
+    $("selectionHint").textContent = count ? `${count} selected` : "No rows selected";
+    $("selectedCount").textContent = `${count} selected`;
+    $("actionContext").textContent = view === "policySets" ? "Map selected policy sets to firms" : "Map selected firms to policy sets";
+    $("actionbar").classList.toggle("hidden", count === 0);
+    document.body.classList.toggle("hasAction", count !== 0);
+  }
+
+  function clearSelection(){
+    selected = new Set();
+    render();
+  }
+
+  // Drawer
+  function openDrawer(kind, id){
+    $("drawerOverlay").style.display = "flex";
+    if(kind === "policySet"){
+      const ps = policySets.find(x => x.id === id);
+      $("drawerSub").textContent = `Policy Set: ${ps.name}`;
+      const firmIds = ps.firms || [];
+      $("drawerList").innerHTML = firmIds.map(fid => {
+        const f = firms.find(x => x.id === fid);
+        const type = (mappingMeta[id] && mappingMeta[id][fid]) ? mappingMeta[id][fid].type : "optional";
+        return drawerRowFirm(id, fid, f.name, type);
+      }).join("") || `<div class="muted" style="font-weight:800">No firms mapped.</div>`;
+    } else {
+      const f = firms.find(x => x.id === id);
+      $("drawerSub").textContent = `Firm: ${f.name}`;
+      const psIds = f.policySets || [];
+      $("drawerList").innerHTML = psIds.map(psid => {
+        const ps = policySets.find(x => x.id === psid);
+        const type = (mappingMeta[psid] && mappingMeta[psid][id]) ? mappingMeta[psid][id].type : "optional";
+        return drawerRowPolicySet(psid, id, ps.name, type);
+      }).join("") || `<div class="muted" style="font-weight:800">No policy sets mapped.</div>`;
+    }
+  }
+
+  function drawerRowFirm(psid, fid, firmName, type){
+    return `
+      <div class="row">
+        <div>
+          <div style="font-weight:900">${escapeHtml(firmName)}</div>
+          <div class="muted" style="font-weight:800; margin-top:4px">Mapping is <strong>${labelType(type)}</strong></div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end">
+          <div class="toggle ${type==='default'?'active':''}" onclick="setMappingType('${psid}','${fid}','default')">Required</div>
+          <div class="toggle ${type==='optional'?'active':''}" onclick="setMappingType('${psid}','${fid}','optional')">Optional</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function drawerRowPolicySet(psid, fid, psName, type){
+    return `
+      <div class="row">
+        <div>
+          <div style="font-weight:900">${escapeHtml(psName)}</div>
+          <div class="muted" style="font-weight:800; margin-top:4px">Mapping is <strong>${labelType(type)}</strong></div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end">
+          <div class="toggle ${type==='default'?'active':''}" onclick="setMappingType('${psid}','${fid}','default')">Required</div>
+          <div class="toggle ${type==='optional'?'active':''}" onclick="setMappingType('${psid}','${fid}','optional')">Optional</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function setMappingType(psid, fid, type){
+    mappingMeta[psid] = mappingMeta[psid] || {};
+    mappingMeta[psid][fid] = {type};
+    toast("Mapping updated");
+    const sub = $("drawerSub").textContent || "";
+    if(sub.startsWith("Policy Set:")){
+      openDrawer("policySet", psid);
+    } else {
+      openDrawer("firm", fid);
+    }
+  }
+
+  function hideDrawer(){ $("drawerOverlay").style.display = "none"; }
+  function closeDrawer(e){ hideDrawer(); }
+
+  // Map modal (row-level type + apply-all)
+  function openMapModal(){
+    modalSelectedTargets = new Set();
+    modalRowTypes = {};
+    applyAllType = "default";
+    setApplyAllType("default");
+
+    const count = selected.size;
+    if(view === "policySets"){
+      $("modalTitle").textContent = `Map ${count} policy set(s) to firms`;
+      $("modalDesc").textContent = "Search and select firms. Select rows, then set Required/Optional per row or apply to all displayed.";
+      $("modalListTitle").textContent = "Firms";
+      $("modalSearch").value = "ac"; // default seed to filter to a handful
+    } else {
+      $("modalTitle").textContent = `Map ${count} firm(s) to policy sets`;
+      $("modalDesc").textContent = "Search and select policy sets. Select rows, then set Required/Optional per row or apply to all displayed.";
+      $("modalListTitle").textContent = "Policy sets";
+      $("modalSearch").value = "Carrier "; // default seed
+    }
+    renderModalList();
+    $("modalOverlay").style.display = "flex";
+  }
+
+  function renderModalList(){
+    const q = ($("modalSearch").value || "").toLowerCase().trim();
+
+    let rows = [];
+    if(view === "policySets"){
+      rows = firms.filter(f => f.name.toLowerCase().includes(q)).slice(0, 8);
+    } else {
+      rows = policySets.filter(ps => ps.name.toLowerCase().includes(q)).slice(0, 8);
+    }
+
+    // Apply-all row + list
+    const applyAllRow = `
+      <div class="item" style="background:#f0f0f0; border-bottom:2px solid var(--line2)">
+        <div class="row2col">
+          <div class="rowLeft">
+            <div style="font-weight:900">Apply to all displayed</div>
+            <div class="muted" style="font-weight:800">Set Required/Optional for the displayed rows.</div>
+          </div>
+          <div class="rowRight">
+            <div class="switchWrap">
+              <div class="switchLabel">${applyAllType==="optional" ? "Optional" : "Required"}</div>
+              <div class="switch ${applyAllType==="optional" ? "on" : ""}" role="switch" aria-checked="${applyAllType==="optional"}" tabindex="0"
+                   onclick="toggleApplyAllType()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleApplyAllType()}"></div>
+            </div>
+            <input type="checkbox" class="check" ${allDisplayedSelected(rows) ? "checked" : ""} onchange="toggleAllDisplayedSelected(this.checked)" />
+          </div>
+        </div>
+      </div>
+    `;
+
+    const listHtml = rows.map(r => {
+      const id = r.id;
+      const name = r.name;
+      const meta = view === "policySets" ? r.status : `${r.firms.length} firms`;
+      const on = modalSelectedTargets.has(id);
+      const type = modalRowTypes[id] || applyAllType; // default per row
+      return modalRow(id, name, meta, on, type);
+    }).join("");
+
+    $("modalList").innerHTML = applyAllRow + listHtml;
+  }
+
+  
+  function allDisplayedSelected(rows){
+    if(rows.length === 0) return false;
+    return rows.every(r => modalSelectedTargets.has(r.id));
+  }
+
+  function toggleAllDisplayedSelected(on){
+    const q = ($("modalSearch").value || "").toLowerCase().trim();
+    const rows = (view === "policySets"
+      ? firms.filter(f => f.name.toLowerCase().includes(q)).slice(0, 8)
+      : policySets.filter(ps => ps.name.toLowerCase().includes(q)).slice(0, 8)
+    );
+    rows.forEach(r => on ? modalSelectedTargets.add(r.id) : modalSelectedTargets.delete(r.id));
+    renderModalList();
+  }
+
+function modalRow(id, name, meta, selectedOn, type){
+    const isOptional = (type === "optional");
+    const label = isOptional ? "Optional" : "Required";
+    const onClass = isOptional ? "on" : "";
+    return `
+      <div class="item">
+        <div class="row2col">
+          <div class="rowLeft" style="min-width:240px">
+            <div style="font-weight:900">${escapeHtml(name)}</div>
+            <div class="muted" style="font-weight:800">${escapeHtml(meta)}</div>
+          </div>
+          <div class="rowRight">
+            <div class="switchWrap">
+              <div class="switchLabel">${label}</div>
+              <div class="switch ${onClass}" role="switch" aria-checked="${isOptional}" tabindex="0"
+                   onclick="toggleRowType('${id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleRowType('${id}')}"></div>
+            </div>
+            <input type="checkbox" class="check" ${selectedOn?"checked":""} onchange="toggleModalTarget('${id}', this.checked)" />
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function setRowType(id, type){
+    modalRowTypes[id] = type;
+    renderModalList();
+  }
+
+  function toggleRowType(id){
+    const current = modalRowTypes[id] || applyAllType;
+    const next = (current === "optional") ? "default" : "optional";
+    setRowType(id, next);
+  }
+
+  
+  function toggleApplyAllType(){
+    const next = (applyAllType === "optional") ? "default" : "optional";
+    applyTypeToAll(next);
+  }
+
+function applyTypeToAll(type){
+    applyAllType = type;
+    // set every currently displayed row to this type (explicitly)
+    const q = ($("modalSearch").value || "").toLowerCase().trim();
+    const rows = (view === "policySets"
+      ? firms.filter(f => f.name.toLowerCase().includes(q)).slice(0, 8)
+      : policySets.filter(ps => ps.name.toLowerCase().includes(q)).slice(0, 8)
+    );
+    rows.forEach(r => modalRowTypes[r.id] = type);
+    renderModalList();
+  }
+
+  function setApplyAllType(type){
+    applyAllType = type;
+  }
+
+  function toggleModalTarget(id, on){
+    if(on) modalSelectedTargets.add(id);
+    else modalSelectedTargets.delete(id);
+  }
+
+  function confirmMapping(){
+    if(modalSelectedTargets.size === 0){
+      toast("Select at least one target");
+      return;
+    }
+
+    if(view === "policySets"){
+      selected.forEach(psid => {
+        modalSelectedTargets.forEach(fid => {
+          const rowType = modalRowTypes[fid] || applyAllType;
+          mappingMeta[psid] = mappingMeta[psid] || {};
+          mappingMeta[psid][fid] = {type: rowType};
+
+          const ps = policySets.find(x => x.id===psid);
+          if(ps && !ps.firms.includes(fid)) ps.firms.push(fid);
+          const f = firms.find(x => x.id===fid);
+          if(f && !f.policySets.includes(psid)) f.policySets.push(psid);
+        });
+      });
+    } else {
+      selected.forEach(fid => {
+        modalSelectedTargets.forEach(psid => {
+          const rowType = modalRowTypes[psid] || applyAllType;
+          mappingMeta[psid] = mappingMeta[psid] || {};
+          mappingMeta[psid][fid] = {type: rowType};
+
+          const f = firms.find(x => x.id===fid);
+          if(f && !f.policySets.includes(psid)) f.policySets.push(psid);
+          const ps = policySets.find(x => x.id===psid);
+          if(ps && !ps.firms.includes(fid)) ps.firms.push(fid);
+        });
+      });
+    }
+
+    hideModal();
+    render();
+    toast("Mapping complete");
+  }
+
+  function hideModal(){ $("modalOverlay").style.display = "none"; }
+  function closeModal(e){ hideModal(); }
+
+  // Toast
+  function toast(msg){
+    const el = $("toast");
+    el.textContent = msg;
+    el.classList.remove("hidden");
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(() => el.classList.add("hidden"), 1400);
+  }
+
+  function labelType(t){ return t==='default' ? 'required' : 'optional'; }
+
+  function escapeHtml(str){
+    return String(str)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  // init
+  render();
+
+</script>
+</body>
+</html>
