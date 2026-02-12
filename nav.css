@@ -1,30 +1,35 @@
-/* nav.css — shared left nav styling */
+/* nav.css — universal left nav (light, bordered, no pills) */
+
 :root{
-  --navw: 260px;
+  --navw: 240px;
+  --line: #111111;
+  --line2: #bbbbbb;
+  --bg: #ffffff;
+  --muted: #666666;
+  --radius: 12px;
+  --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
 }
 
 .nav{
   position: fixed;
-  top: 0;
   left: 0;
+  top: 0;
   bottom: 0;
   width: var(--navw);
-  background: #0f172a;
-  color: #e2e8f0;
+  background: var(--bg);
+  border-right: 2px solid var(--line);
   padding: 18px 14px;
-  overflow-y: auto;
-  box-shadow: 0 10px 30px rgba(0,0,0,.35);
-  z-index: 50;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-family: var(--sans);
 }
 
 .brand{
-  font-weight: 700;
+  font-weight: 900;
+  letter-spacing: -0.02em;
   font-size: 14px;
-  letter-spacing: .2px;
-  margin-bottom: 14px;
-  padding: 10px 10px;
-  border-radius: 10px;
-  background: rgba(255,255,255,.06);
 }
 
 .navSection{
@@ -38,24 +43,33 @@
   align-items: center;
   gap: 10px;
   padding: 10px 10px;
-  border-radius: 10px;
-  color: inherit;
+  border-radius: var(--radius);
+  border: 2px solid transparent;
   text-decoration: none;
-  opacity: .95;
+  color: var(--line);
+  font-weight: 900;
+  font-size: 13px;
 }
 
 .navItem:hover{
-  background: rgba(255,255,255,.08);
-  opacity: 1;
+  border-color: var(--line2);
+  background: #f7f7f7;
 }
 
 .navItem.active{
-  background: rgba(59,130,246,.22);
-  outline: 1px solid rgba(59,130,246,.35);
+  border-color: var(--line);
+  background: #ffffff;
 }
 
 .navBottom{
-  margin-top: 18px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(255,255,255,.12);
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 2px solid var(--line2);
+}
+
+.navHint{
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 12px;
+  line-height: 1.3;
 }
