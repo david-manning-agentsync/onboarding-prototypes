@@ -1,14 +1,13 @@
-<!-- nav.html
-  Universal left navigation (included via fetch() into other pages).
-  Update hrefs as you add/rename pages.
--->
+<!-- nav.html — universal left navigation (injected via fetch('./nav.html')) -->
 <aside class="nav">
   <div class="brand">Onboarding • Prototypes</div>
 
   <div class="navSection">
     <a class="navItem" data-nav="personas" href="./index.html">Personas</a>
 
-    <a class="navItem" data-nav="policy-sets" href="./create-policy.html">Create Policy Set</a>
+    <a class="navItem" data-nav="policy-sets" href="./create-policy.html">
+      Create Policy Set
+    </a>
 
     <a class="navItem" data-nav="map-policy-sets" href="./map-policy-sets-to-firms-wireframe-v13.html">
       Map Policy Sets to Firms
@@ -20,4 +19,10 @@
 
     <a class="navItem" data-nav="operations-producers" href="./operations-manager-producers-rewrite-v13.html">
       Operations • Producers
-    </
+    </a>
+  </div>
+
+  <div class="navBottom">
+    <div class="navHint">Tip: Use the left nav to jump between flows.</div>
+  </div>
+</aside>
