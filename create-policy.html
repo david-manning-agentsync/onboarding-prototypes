@@ -3,236 +3,161 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Create Policy Set</title>
+  <title>Create Policy Set — Demo</title>
+
+  <!-- shared nav style -->
   <link rel="stylesheet" href="./nav.css">
+
   <style>
     :root{
-      --bg:#fff;
-      --text:#111;
-      --muted:#666;
-      --line:#111;
-      --line2:#bbb;
-      --radius:14px;
       --navw:240px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      --bg:#fff;
+      --line:#111;
+      --line2:#e6e6e6;
+      --muted:#666;
+      --radius:14px;
+      --gap:14px;
+      --accent:#111;
+      --primary-bg:#111;
+      --primary-fg:#fff;
+      --card-bg:#fff;
+      --shadow: 0 10px 30px rgba(0,0,0,.06);
+      --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
     }
+
     *{box-sizing:border-box}
-    body{margin:0; font-family:var(--sans); background:var(--bg); color:var(--text); min-height:100vh;}
-    a{color:inherit}
+    body{margin:0; font-family:var(--sans); background:var(--bg); color:var(--line); min-height:100vh;}
 
-    #leftNavMount{position:fixed; left:0; top:0; bottom:0; width:var(--navw); z-index:50;}
+    /* mount for injected nav */
+    #leftNavMount{position:fixed; left:0; top:0; bottom:0; width:var(--navw); z-index:60;}
 
-    /* Injected nav look (light / bordered) */
-    #leftNavMount .nav{
-      position:fixed; left:0; top:0; bottom:0; width:var(--navw);
-      border-right:2px solid var(--line);
-      padding:18px 14px;
-      background:#fff;
-      display:flex; flex-direction:column; gap:14px;
-      overflow:auto;
-    }
-    #leftNavMount .brand{font-weight:900; letter-spacing:-0.02em}
-    #leftNavMount .navSection{display:flex; flex-direction:column; gap:6px}
-    #leftNavMount .navItem{
-      display:flex; gap:10px; align-items:center;
-      padding:8px 10px;
-      border:2px solid transparent;
-      border-radius:12px;
-      cursor:pointer;
-      text-decoration:none;
-    }
-    #leftNavMount .navItem:hover{border-color:var(--line2)}
-    #leftNavMount .navItem.active{border-color:var(--line)}
-    #leftNavMount .navBottom{margin-top:auto; padding-top:10px; border-top:2px solid var(--line2)}
-
+    /* page layout */
     .content{margin-left:var(--navw); min-height:100vh;}
-    .page{padding:16px; padding-bottom:92px;}
-    .topbar{
-      position:sticky; top:0; z-index:20;
-      background:#fff; border-bottom:2px solid var(--line);
-      padding:12px 16px;
-    }
-    .objTitle{font-weight:900; font-size:16px; letter-spacing:-0.02em}
-    .objSub{font-size:12px; margin-top:2px; color:var(--muted)}
+    .topbar{position:sticky; top:0; background:var(--bg); border-bottom:2px solid var(--line2); padding:12px 18px; z-index:40;}
+    .topRow{display:flex; align-items:center; justify-content:space-between;}
+    .objTitle{font-weight:900; font-size:18px}
+    .objSub{font-size:12px; color:var(--muted); margin-top:4px}
 
-    .wizardGrid{display:grid; grid-template-columns: 340px 1fr; gap:14px; align-items:start;}
-    .card{border:2px solid var(--line); border-radius:var(--radius); background:#fff;}
-    .panel{border:2px solid var(--line); border-radius:var(--radius); padding:12px; background:#fff;}
-    .muted{color:var(--muted)}
-    .mono{font-family:var(--mono)}
+    main.page{padding:18px; padding-bottom:120px}
 
-    #stepper{padding:12px;}
-    .step{
-      display:flex; gap:10px; align-items:flex-start;
-      padding:10px 10px;
-      border-radius:12px;
-      border:2px solid transparent;
-      color:var(--muted);
-      font-size:13px;
-      cursor:pointer;
-    }
-    .step:hover{border-color:var(--line2); color:var(--text)}
-    .step .dot{
-      width:18px; height:18px;
-      border:2px solid var(--line2);
-      display:flex; align-items:center; justify-content:center;
-      font-size:11px; color:var(--muted);
-      flex:0 0 18px; margin-top:1px; font-weight:900;
-    }
-    .step.active{color:var(--text); border-color:var(--line);}
-    .step.done .dot{border-color:var(--line); color:var(--text)}
+    /* layout for wizard content */
+    .wizardGrid{display:grid; grid-template-columns:320px 1fr; gap:18px; align-items:start}
+    .card{background:var(--card-bg); border:2px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden}
+    .card.pad{padding:12px}
 
-    #stepContent{padding:14px;}
+    /* stepper left */
+    #stepper{padding:12px; height:calc(100vh - 180px); overflow:auto}
+    .stepItem{display:flex; gap:12px; align-items:flex-start; padding:10px; border-radius:10px; cursor:pointer; border:2px solid transparent}
+    .stepItem:hover{border-color:var(--line2)}
+    .stepItem .num{width:28px;height:28px;border-radius:6px;border:2px solid var(--line2);display:flex;align-items:center;justify-content:center;font-weight:900;color:var(--muted);flex:0 0 28px}
+    .stepItem.active{border-color:var(--line); background:#fff; color:var(--line)}
+    .stepItem.done .num{border-color:var(--line); background:#fff; color:var(--line)}
+
+    /* main step content */
+    #stepContent{padding:18px; min-height:320px}
     #stepContent h2{margin:0 0 8px; font-size:18px; font-weight:900}
-    #stepContent p{margin:0; color:var(--muted); font-size:13px; line-height:1.4}
+    #stepContent p{margin:0; color:var(--muted)}
 
-    .btn{
-      border:2px solid var(--line);
-      background:#fff;
-      padding:10px 12px;
+    /* upload box */
+    .uploadBox{
+      border:2px dashed var(--line2);
       border-radius:12px;
-      cursor:pointer;
-      font-weight:900;
-      font-size:13px;
+      padding:18px;
+      background:linear-gradient(180deg,#fff,#fbfbfb);
     }
+    .uploadRow{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .fileName{font-weight:900;color:var(--line)}
+
+    /* details and kv rows */
+    .details{display:flex;flex-direction:column;gap:10px}
+    .detailRow{display:flex;gap:12px;align-items:center;padding:10px;border-radius:10px;border:1px solid var(--line2);background:#fff}
+    .detailRow .key{width:180px;font-weight:800;color:var(--muted);font-size:13px}
+    .detailRow .value{flex:1;font-weight:700;color:var(--line);font-size:13px}
+
+    .detailTable{width:100%;border-collapse:collapse;margin-top:8px}
+    .detailTable th,.detailTable td{border:1px solid #eee;padding:10px 12px;text-align:left;font-size:13px}
+    .detailTable th{background:#fafafa;font-weight:900}
+
+    .smallMuted{font-size:12px;color:var(--muted);font-weight:700}
+    .sectionNote{font-size:13px;color:var(--muted);margin-top:6px}
+
+    /* buttons */
+    .btn{border:2px solid var(--line); background:#fff; padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:900}
     .btn:hover{background:#f7f7f7}
-    .btn.primary{background:#111; color:#fff}
-    .btn.primary:hover{background:#000}
+    .btn.primary{background:var(--primary-bg);color:var(--primary-fg)}
     .btn.quiet{background:#f7f7f7}
 
-    input, select, textarea{font-family:inherit}
+    /* sticky bottom bar, right-aligned, avoids nav */
+    .stickybar{position:fixed; left:var(--navw); right:0; bottom:0; z-index:99; background:var(--bg); border-top:2px solid var(--line2); padding:14px 20px; box-shadow:0 -8px 18px rgba(0,0,0,.06)}
+    .stickyInner{display:flex; justify-content:flex-end; gap:12px; align-items:center; max-width:1200px; margin:0 auto}
 
-    .stickybar{
-      position:fixed; left:var(--navw); right:0; bottom:0; z-index:10000;
-      background:#fff; border-top:2px solid var(--line);
-      padding:10px 16px;
-      box-shadow:0 -8px 24px rgba(0,0,0,.12);
-    }
-    .stickybar.hidden{display:none}
-    .stickyInner{display:flex; justify-content:flex-end; gap:10px; align-items:center}
+    /* drawer + toast */
+    #drawerOverlay{position:fixed; inset:0; display:none; background:rgba(0,0,0,.12); z-index:150; align-items:stretch}
+    #drawer{margin-left:auto;width:480px;background:#fff;border-left:2px solid var(--line);height:100%;display:flex;flex-direction:column}
+    #drawerHeader{padding:12px;border-bottom:2px solid var(--line)}
+    #drawerContent{padding:12px;overflow:auto;flex:1}
+    #toast{position:fixed; left:calc(var(--navw) + 18px); bottom:92px; display:none; z-index:160; padding:10px 12px; border:2px solid var(--line); background:#fff; border-radius:10px; font-weight:900}
 
-    #drawerOverlay{
-      position:fixed; inset:0; background:rgba(0,0,0,.15);
-      display:none; z-index:9000;
-      align-items:stretch;
-    }
-    #drawer{
-      margin-left:auto;
-      width:440px; max-width:92vw;
-      background:#fff; border-left:2px solid var(--line);
-      display:flex; flex-direction:column;
-      height:100%;
-    }
-    #drawerHeader{
-      border-bottom:2px solid var(--line);
-      padding:12px;
-      display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
-    }
-    #drawerContent{padding:12px; overflow:auto; flex:1}
-
-    #toast{
-      position:fixed; left:calc(var(--navw) + 16px); bottom:92px;
-      padding:10px 12px; border:2px solid var(--line); border-radius:12px; background:#fff;
-      display:none; z-index:12000; font-weight:900; box-shadow:0 10px 22px rgba(0,0,0,.12);
-    }
-
-    @media (max-width: 980px){
+    @media (max-width:980px){
       .wizardGrid{grid-template-columns: 1fr;}
-      #leftNavMount{position:static; width:auto;}
-      .content{margin-left:0;}
-      .stickybar{left:0;}
+      #leftNavMount{position:static;width:auto}
+      .content{margin-left:0}
+      .stickybar{left:0}
     }
-  
-/* Polished details & content styling (from original look) */
-.card .sectionTitle{font-weight:900; font-size:15px; margin-bottom:8px;}
-.details{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-.detailRow{
-  display:flex;
-  gap:12px;
-  align-items:center;
-  padding:10px;
-  border-radius:10px;
-  border:1px solid #efefef;
-  background:linear-gradient(180deg, #ffffff, #fbfbfb);
-}
-.detailRow .key{width:180px; font-weight:800; color:var(--muted); font-size:13px}
-.detailRow .value{flex:1; font-weight:700; color:var(--text); font-size:13px}
-.detailTable{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:8px;
-}
-.detailTable th, .detailTable td{
-  border:1px solid #eee;
-  padding:10px 12px;
-  text-align:left;
-  font-size:13px;
-}
-.detailTable th{
-  background:#fafafa;
-  font-weight:900;
-}
-.kvGrid{
-  display:grid;
-  grid-template-columns:160px 1fr;
-  gap:8px 14px;
-  align-items:center;
-}
-.smallMuted{font-size:12px; color:var(--muted); font-weight:700}
-.sectionNote{font-size:13px; color:var(--muted); margin-top:6px}
-
-</style>
+  </style>
 </head>
-
 <body data-nav="policy-sets">
+  <!-- left nav mount (nav.html gets injected here) -->
   <div id="leftNavMount"></div>
 
   <div class="content">
     <div class="topbar">
-      <div>
-        <div class="objTitle">Create Policy Set</div>
-        <div class="objSub">Wizard prototype</div>
+      <div class="topRow">
+        <div>
+          <div class="objTitle">Create Policy Set</div>
+          <div class="objSub">Wizard prototype — polished demo</div>
+        </div>
       </div>
     </div>
 
     <main class="page">
       <section id="wizard" class="screen">
         <div class="wizardGrid">
-          <aside class="card" id="stepper"></aside>
-          <section class="card" aria-label="Wizard step content">
-            <div id="stepContent"><div class="muted">Loading…</div></div>
+          <!-- left stepper -->
+          <aside class="card" id="stepper">
+            <!-- step items injected by JS -->
+          </aside>
+
+          <!-- right main card -->
+          <section class="card">
+            <div id="stepContent">
+              <!-- content injected by JS -->
+            </div>
           </section>
         </div>
       </section>
     </main>
   </div>
 
-  <div id="sticky" class="stickybar hidden">
+  <!-- sticky bottom actions -->
+  <div id="sticky" class="stickybar">
     <div class="stickyInner">
       <button class="btn quiet" id="backBtn" onclick="back()">Back</button>
-      <button class="btn quiet hidden" id="secondaryBtn" onclick="secondaryAction()"> </button>
+      <button class="btn quiet" id="skipBtn" onclick="skip()">Skip (manual)</button>
       <button class="btn primary" id="nextBtn" onclick="next()">Next</button>
-      
     </div>
   </div>
 
+  <!-- drawer + toast placeholders -->
   <div id="drawerOverlay" onclick="closeDrawer(event)">
     <aside id="drawer" aria-label="Drawer">
-      <div id="drawerHeader">
-        <div style="font-weight:900">Details</div>
-        <button class="btn quiet" onclick="hideDrawer(); event.stopPropagation();">Close</button>
-      </div>
+      <div id="drawerHeader"><div style="font-weight:900">Details</div><button class="btn quiet" onclick="hideDrawer();event.stopPropagation()">Close</button></div>
       <div id="drawerContent"></div>
     </aside>
   </div>
-
   <div id="toast"></div>
 
+  <!-- inject nav -->
   <script>
   (async function loadNav(){
     const mount = document.getElementById('leftNavMount');
@@ -240,535 +165,158 @@
     try{
       const res = await fetch('./nav.html', {cache:'no-store'});
       mount.innerHTML = await res.text();
-      const activeKey = document.body.getAttribute('data-nav');
-      if(activeKey){
-        mount.querySelectorAll('.navItem').forEach(a=>a.classList.toggle('active', a.dataset.nav===activeKey));
+      // highlight active item
+      const active = document.body.getAttribute('data-nav');
+      if(active){
+        mount.querySelectorAll('.navItem').forEach(a => a.classList.toggle('active', a.dataset.nav === active));
       }
-    } catch(e) {
+    }catch(e){
       console.warn('Could not load nav.html', e);
     }
   })();
   </script>
 
+  <!-- Lightweight stepper + rendering logic -->
   <script>
-const steps = [
-    { id:"method", title:"Method" },
-    { id:"document", title:"Document" },
-    { id:"analyze", title:"Analyze" },
-    { id:"scope", title:"Regulatory scope" },
-    { id:"regTasks", title:"Regulatory tasks" },
-    { id:"orgTasks", title:"Organizational tasks" },
-    { id:"summary", title:"Summary" },
-  ];
-
-  let state = {
-    screen: "wizard",
-    stepIndex: 0,
-    method: "ai",
-    fileName: "Carrier A contract.pdf",
-    scopeRows: [
-      {on:true, st:"CA", prod:"Life", licName:"Life Agent", licCode:"CA-LIFE", loaName:"Life", loaCode:"L"},
-      {on:true, st:"CA", prod:"Annuity", licName:"Life Agent", licCode:"CA-LIFE", loaName:"Variable Annuity", loaCode:"VA"},
-      {on:true, st:"TX", prod:"Life", licName:"General Lines Life, Accident, Health", licCode:"TX-GL", loaName:"Life", loaCode:"L"},
-      {on:true, st:"FL", prod:"Annuity", licName:"Life", licCode:"FL-L", loaName:"Annuities", loaCode:"A"},
-      {on:true, st:"AZ", prod:"Life", licName:"Life", licCode:"AZ-L", loaName:"Life", loaCode:"L"},
-      {on:true, st:"CO", prod:"Life", licName:"Life", licCode:"CO-L", loaName:"Life", loaCode:"L"},
-    ],
-    regTasks: [
-      { name:"Verify active resident license", type:"Approval", desc:"Confirm producer holds an active, eligible resident license for the Policy Set scope.", who:"Operations Manager", approver:"Compliance (optional)" },
-      { name:"Confirm LOA eligibility", type:"Attest", desc:"Producer attests they are authorized for relevant lines of authority.", who:"Producer", approver:"Operations Manager" },
-      { name:"Background check requirement", type:"Upload", desc:"Collect evidence or confirmation that screening requirements are met (if applicable).", who:"Producer", approver:"Operations Manager" },
-      { name:"State-specific appointment filing", type:"Data", desc:"Ensure appointment filing workflow triggers for in-scope states where required.", who:"System", approver:"Operations Manager" },
-    ],
-    orgTasks: [
-      { name:"Carrier training: Product overview", type:"Read/Ack", desc:"Producer reviews carrier-required product overview training content.", who:"Producer", approver:"None" },
-      { name:"W-9 / tax form on file", type:"Upload", desc:"Collect required tax documentation as part of carrier contracting.", who:"Producer", approver:"Operations Manager" },
-      { name:"E&O insurance verification", type:"Upload", desc:"Confirm producer has required Errors & Omissions coverage.", who:"Producer", approver:"Operations Manager" },
-    ],
-    selectedRegTask: 0,
-    selectedOrgTask: 0,
-  };
-
+  // tiny helpers
   function $(id){ return document.getElementById(id); }
+  function el(tag,attrs={},html=''){ const e=document.createElement(tag); for(let k in attrs) e.setAttribute(k, attrs[k]); if(html) e.innerHTML=html; return e; }
 
-  function go(screen){
-    try{
-      state.screen = screen;
-
-      // Hide all screens (safe)
-      document.querySelectorAll(".screen").forEach(el => {
-        if(el && el.classList) el.classList.add("hidden");
-      });
-
-      // Show requested screen (safe)
-      const target = $(screen);
-      if(target && target.classList){
-        target.classList.remove("hidden");
-      } else {
-        console.warn("Missing screen element:", screen);
-      }
-
-      // Sticky bar visibility (safe)
-      const st = $("sticky");
-      if(screen === "wizard"){
-        renderStepper();
-        renderStep();
-        if(st && st.classList) st.classList.remove("hidden");
-      } else {
-        if(st && st.classList) st.classList.add("hidden");
-      }
-
-      hideDrawer();
-    } catch(e){
-      console.error("go() failed:", e);
-      const c = document.getElementById("stepContent");
-      if(c){
-        c.innerHTML = `<div class="panel" style="border-color:#b91c1c"><div style="font-weight:900">Error</div><div class="muted" style="margin-top:6px">${String(e)}</div></div>`;
-      }
-    }
-  }
-
-  function startPolicySet(){
-    state.stepIndex = 0;
-    go("wizard");
-  }
+  // Demo steps + static content (polished)
+  const steps = [
+    {id:'method', title:'Method', short:'1'},
+    {id:'document', title:'Document', short:'2'},
+    {id:'analyze', title:'Analyze', short:'3'},
+    {id:'regscope', title:'Regulatory scope', short:'4'},
+    {id:'regtasks', title:'Regulatory tasks', short:'5'},
+    {id:'orgtasks', title:'Organizational tasks', short:'6'},
+    {id:'summary', title:'Summary', short:'7'}
+  ];
+  let state = {index:0};
 
   function renderStepper(){
-    const el = $("stepper");
-    el.innerHTML = "";
-    steps.forEach((s, i) => {
-      const stepEl = document.createElement("div");
-      stepEl.className = "step" + (i === state.stepIndex ? " active" : "") + (i < state.stepIndex ? " done" : "");
-      stepEl.onclick = () => jump(i);
-      stepEl.innerHTML = `
-        <div class="dot">${i < state.stepIndex ? "✓" : (i+1)}</div>
-        <div style="font-weight:900">${s.title}</div>`;
-      el.appendChild(stepEl);
+    const mount = $('stepper');
+    mount.innerHTML = '';
+    steps.forEach((s,i) => {
+      const item = el('div',{class:'stepItem' + (i===state.index?' active':'') + (i<state.index ? ' done':'')});
+      item.onclick = ()=>{ state.index=i; renderStepper(); renderStep(); };
+      const num = el('div',{class:'num'}, s.short);
+      const label = el('div',{}, `<div style="font-weight:900">${s.title}</div>`);
+      item.appendChild(num); item.appendChild(label);
+      mount.appendChild(item);
     });
   }
 
-  function jump(i){
-    if(i <= state.stepIndex){
-      state.stepIndex = i;
-      renderStepper();
-      renderStep();
-    } else {
-      toast("Complete the step using the primary CTA.");
-    }
-  }
-
-  function back(){
-    if(state.stepIndex === 0){ go("hub"); return; }
-    state.stepIndex -= 1;
-    renderStepper();
-    renderStep();
-  }
-
-  function next(){
-    const id = steps[state.stepIndex].id;
-    if(id === "analyze"){ return; }
-    if(state.stepIndex < steps.length - 1){
-      state.stepIndex += 1;
-      renderStepper();
-      renderStep();
-    }
-  }
-
-  function secondaryAction(){
-    const id = steps[state.stepIndex].id;
-    if(id === "document"){
-      toast("In the full product this would switch to manual scope entry.");
-    } else if(id === "scope"){
-      toast("CSV exported (prototype).");
-    } else if(id === "summary"){
-      toast("This would open the Policy Sets list view.");
-    }
-  }
-
-  function setSticky({nextLabel="Next", secondaryLabel="", hint=""}){
-    const n = $("nextBtn"); if(n) n.textContent = nextLabel;
-    // no pills/hints in this rebuild
-    const h = $("hint"); if(h) h.textContent = "";
-    const s = $("secondaryBtn");
-    if(!secondaryLabel){
-      s.classList.add("hidden");
-    } else {
-      s.classList.remove("hidden");
-      s.textContent = secondaryLabel;
-    }
-  }
-
   function renderStep(){
-    const id = steps[state.stepIndex].id;
-    const c = $("stepContent");
-
-    $("backBtn").textContent = (state.stepIndex === 0) ? "Back to personas" : "Back";
-    $("nextBtn").onclick = next;
-
-    if(id === "method"){
-      c.innerHTML = `
-        <h2>How do you want to create this Policy Set?</h2>
-        <p>Choose a method. You can review everything before confirming.</p>
-
-        <div class="section grid2">
-          <div class="radio-card ${state.method==="ai" ? "selected":""}" onclick="chooseMethod('ai')">
-            <div class="radio"><div class="inner"></div></div>
-            <div>
-              <h3>Use AI (recommended)</h3>
-              <p>Upload a carrier contract or program guide. We’ll draft scope + tasks for review.</p>
+    const mount = $('stepContent');
+    const s = steps[state.index];
+    // build content per step
+    if(!mount) return;
+    if(s.id === 'method'){
+      mount.innerHTML = `
+        <div style="display:flex;gap:18px;align-items:flex-start">
+          <div style="flex:1">
+            <h2>Choose a method</h2>
+            <p class="smallMuted">How would you like to create this Policy Set?</p>
+            <div style="margin-top:12px" class="details">
+              <div class="detailRow"><div class="key">Start from document</div><div class="value">Upload carrier contract or policy (recommended)</div></div>
+              <div class="detailRow"><div class="key">Create manually</div><div class="value">Enter tasks & scope manually</div></div>
             </div>
           </div>
-          <div class="radio-card ${state.method==="manual" ? "selected":""}" onclick="chooseMethod('manual')">
-            <div class="radio"><div class="inner"></div></div>
-            <div>
-              <h3>Manual</h3>
-              <p>Build scope + requirements from scratch.</p>
-            </div>
+          <div style="width:360px">
+            <div class="detailRow"><div class="key">Selected method</div><div class="value">Start from document</div></div>
+            <div style="margin-top:10px" class="smallMuted">Tip: Upload a PDF and we’ll extract scope & tasks automatically.</div>
           </div>
         </div>
       `;
-      setSticky({nextLabel:"Continue", hint:"One primary choice"});
-    }
+    } else if(s.id === 'document'){
+      mount.innerHTML = `
+        <div>
+          <h2>Upload source document</h2>
+          <p class="smallMuted">Drop a file to generate an initial Policy Set draft.</p>
 
-    if(id === "document"){
-      c.innerHTML = `
-        <h2>Upload source document</h2>
-        <p>Drop a file to generate an initial Policy Set draft.</p>
-
-        <div class="section grid2">
-          <div class="panel">
-            <div class="dropzone">
-              <div class="filetile">
-                <div class="fileicon">PDF</div>
-                <div class="filemeta">
-                  <div class="name">${escapeHtml(state.fileName)}</div>
-                  <div class="hint">Already added • Replace or remove</div>
-                </div>
+          <div style="margin-top:14px" class="uploadBox">
+            <div class="uploadRow">
+              <div>
+                <div class="fileName">PDF — Carrier A contract.pdf</div>
+                <div class="smallMuted">Already added · Replace or remove</div>
               </div>
-              <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end">
-                <button class="quiet" onclick="toast('Replace file (prototype)')">Replace</button>
-                <button class="quiet" onclick="toast('Remove file (prototype)')">Remove</button>
+              <div style="display:flex;gap:8px">
+                <button class="btn quiet" onclick="replaceFile()">Replace</button>
+                <button class="btn quiet" onclick="removeFile()">Remove</button>
               </div>
             </div>
-            <div class="subtitle" style="margin-top:10px">Supported: PDF, DOCX (max 25MB)</div>
+            <div style="margin-top:12px" class="smallMuted">Supported: PDF, DOCX (max 25MB)</div>
           </div>
 
-          <div class="panel">
-            <div style="font-weight:900; margin-bottom:8px">What we’ll extract</div>
-            <div class="tags">
-              <span class="tag">States</span>
-              <span class="tag">Products</span>
-              <span class="tag">Licenses / LOAs</span>
-              <span class="tag">Carrier requirements</span>
+          <div style="margin-top:12px" class="card pad">
+            <h3 style="margin:0 0 8px">What we'll extract</h3>
+            <p class="smallMuted">States · Products · Licenses / LOAs · Carrier rules & requirements</p>
+            <div style="margin-top:8px">
+              <button class="btn quiet" onclick="skipAndEnter()">Skip and enter scope manually</button>
             </div>
-            <div class="divider"></div>
-            <button class="linkbtn" onclick="toast('Would switch to manual entry')">Skip and enter scope manually</button>
+          </div>
+
+          <div style="margin-top:14px">
+            <h3 style="margin:0 0 8px">Extracted Regulatory Scope</h3>
+            <table class="detailTable">
+              <thead><tr><th>State/Area</th><th>Products</th><th>Notes</th></tr></thead>
+              <tbody>
+                <tr><td>California</td><td>Life, Annuity</td><td>Requires LOA for transactions</td></tr>
+                <tr><td>Texas</td><td>Life</td><td>Carrier-specific licensing rules apply</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
       `;
-      setSticky({nextLabel:"Next: Analyze", secondaryLabel:"Skip (manual)", hint:"Upload → analyze → review"});
-    }
+    } else if(s.id === 'analyze'){
+      mount.innerHTML = `
+        <div>
+          <h2>Analyze document</h2>
+          <p class="smallMuted">We analyzed the uploaded document and proposed these regulatory tasks and organizational tasks.</p>
 
-    if(id === "analyze"){
-      c.innerHTML = `
-        <h2>Analyzing your document</h2>
-        <p>We’re extracting regulatory scope and drafting tasks.</p>
-
-        <div class="section panel">
-          <div style="display:flex; flex-direction:column; gap:10px; font-weight:900">
-            <div>1) Extracting regulatory scope…</div>
-            <div>2) Detecting product types…</div>
-            <div>3) Drafting tasks…</div>
-          </div>
-          <div class="divider"></div>
-          <div class="subtitle">You’ll be able to review everything before confirming.</div>
-        </div>
-      `;
-      setSticky({nextLabel:"Working…", hint:"Auto-advances"});
-      setTimeout(() => {
-        if(steps[state.stepIndex].id === "analyze"){
-          state.stepIndex += 1;
-          renderStepper();
-          renderStep();
-        }
-      }, 700);
-    }
-
-    if(id === "scope"){
-      const states = ["CA","TX","FL","AZ","CO","NV"];
-      const products = ["Life","Annuity"];
-      c.innerHTML = `
-        <h2>Confirm regulatory scope</h2>
-        <p>Review what we extracted. Unchecked rows won’t be included in this Policy Set.</p>
-
-        <div class="section banner">
-          <div>
-            <div class="line">We found regulatory scope for ${states.length} states <span>(${states.join(", ")})</span></div>
-            <div class="line">Products allowed <span>(${products.join(", ")})</span></div>
-          </div>
-          <div>
-            <button class="quiet" onclick="toast('Expanded lists (prototype)')">Expand</button>
-          </div>
-        </div>
-
-        <div class="toolbar">
-          <input class="input" placeholder="Search to add scope…" oninput="toast('Add row search (prototype)')" />
-          <div style="display:flex; gap:10px; flex-wrap:wrap">
-            <button class="quiet" onclick="selectAll(true)">Select all</button>
-            <button class="quiet" onclick="selectAll(false)">Select none</button>
-          </div>
-        </div>
-
-        <div class="tablewrap">
-          <table>
-            <thead>
-              <tr>
-                <th style="width:42px"><input type="checkbox" class="check" onclick="toggleHeader(this)" /></th>
-                <th>State</th><th>Product Type</th><th>License Name</th><th>License Code</th><th>LOA Name</th><th>LOA Code</th>
-              </tr>
-            </thead>
+          <table class="detailTable" style="margin-top:12px">
+            <thead><tr><th>Task</th><th>Type</th><th>Suggested Assignee</th></tr></thead>
             <tbody>
-              ${state.scopeRows.map((r, idx) => `
-                <tr>
-                  <td><input type="checkbox" class="check" ${r.on ? "checked":""} onchange="toggleRow(${idx}, this.checked)" /></td>
-                  <td>${r.st}</td><td>${r.prod}</td><td>${escapeHtml(r.licName)}</td><td>${r.licCode}</td><td>${escapeHtml(r.loaName)}</td><td>${r.loaCode}</td>
-                </tr>
-              `).join("")}
+              <tr><td>Verify LOA acceptability</td><td>Regulatory</td><td>Compliance</td></tr>
+              <tr><td>Update producer appointment rules</td><td>Organizational</td><td>Ops</td></tr>
             </tbody>
           </table>
         </div>
       `;
-      setSticky({nextLabel:"Confirm regulatory scope", secondaryLabel:"Download CSV", hint:"Prune + add rows"});
+    } else {
+      mount.innerHTML = `<div style="padding:12px"><h2>${s.title}</h2><p class="smallMuted">This step is a prototype placeholder. Replace or extend with your flow content.</p></div>`;
     }
 
-    if(id === "regTasks"){
-      c.innerHTML = `
-        <h2>Regulatory requirements</h2>
-        <p>Scan the list. Open details only when you need to modify something.</p>
-
-        <div class="listonly">
-          <div class="list">
-            <div class="listhead">
-              <div class="title2">Tasks</div>
-              <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
-                <input class="input" style="width:260px" placeholder="Search tasks…" oninput="toast('Task search (prototype)')" />
-                <button class="quiet" onclick="addTask('reg')">+ New task</button>
-              </div>
-            </div>
-
-            ${state.regTasks.map((t, i) => `
-              <div class="item ${i===state.selectedRegTask ? "active":""}" onclick="openTask('reg', ${i})">
-                <div class="leftmeta">
-                  <div class="row1">
-                    <div class="name">${escapeHtml(t.name)}</div>
-                    <span class="badge">${t.type}</span>
-                  </div>
-                  <div class="hintline">Click to view details</div>
-                </div>
-                <div class="rightmeta">
-                  <button class="secondaryAction" onclick="event.stopPropagation(); toast('Quick edit (prototype)')">Edit</button>
-                  <span class="chev">&gt;</span>
-                </div>
-              </div>
-            `).join("")}
-          </div>
-        </div>
-      `;
-      setSticky({nextLabel:"Confirm regulatory tasks", hint:"List-first scanning"});
-    }
-
-    if(id === "orgTasks"){
-      c.innerHTML = `
-        <h2>Organizational requirements</h2>
-        <p>Scan carrier/agency requirements. Open details only when necessary.</p>
-
-        <div class="listonly">
-          <div class="list">
-            <div class="listhead">
-              <div class="title2">Tasks</div>
-              <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
-                <input class="input" style="width:260px" placeholder="Search tasks…" oninput="toast('Task search (prototype)')" />
-                <button class="quiet" onclick="addTask('org')">+ New task</button>
-              </div>
-            </div>
-
-            ${state.orgTasks.map((t, i) => `
-              <div class="item ${i===state.selectedOrgTask ? "active":""}" onclick="openTask('org', ${i})">
-                <div class="leftmeta">
-                  <div class="row1">
-                    <div class="name">${escapeHtml(t.name)}</div>
-                    <span class="badge">${t.type}</span>
-                  </div>
-                  <div class="hintline">Click to view details</div>
-                </div>
-                <div class="rightmeta">
-                  <button class="secondaryAction" onclick="event.stopPropagation(); toast('Quick edit (prototype)')">Edit</button>
-                  <span class="chev">&gt;</span>
-                </div>
-              </div>
-            `).join("")}
-          </div>
-        </div>
-      `;
-      setSticky({nextLabel:"Confirm organizational tasks", hint:"List-first scanning"});
-    }
-
-    if(id === "summary"){
-      c.innerHTML = `
-        <h2>Policy Set created</h2>
-        <p>Review what this Policy Set contains. You can modify any section.</p>
-
-        <div class="section panel">
-          <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap">
-            <div style="display:flex; flex-direction:column; gap:6px">
-              <div style="font-weight:900">Policy Set name</div>
-              <div class="subtitle" style="margin:0">Carrier A – Life/Annuity – Southwest</div>
-            </div>
-            <button class="quiet" onclick="toast('Rename (prototype)')">Rename</button>
-          </div>
-        </div>
-
-        <div class="cards1">
-          <div class="card summarycard">
-            <h3>Regulatory scope</h3>
-            <p><strong>74 regulatory codes</strong> across <strong>6 states</strong> allowing producers to sell <strong>2 product types</strong>.</p>
-            <div class="divider"></div>
-            <button class="linkbtn" onclick="jumpTo('scope')">Review / Modify</button>
-          </div>
-          <div class="card summarycard">
-            <h3>Regulatory requirements</h3>
-            <p>All regulatory tasks within the scope of your policy set.</p>
-            <div class="divider"></div>
-            <button class="linkbtn" onclick="jumpTo('regTasks')">Review / Modify</button>
-          </div>
-          <div class="card summarycard">
-            <h3>Organizational requirements</h3>
-            <p>Non-regulatory requirements to satisfy appointing and ready-to-sell.</p>
-            <div class="divider"></div>
-            <button class="linkbtn" onclick="jumpTo('orgTasks')">Review / Modify</button>
-          </div>
-        </div>
-
-        <div class="section panel">
-          <div style="display:flex; gap:10px; flex-wrap:wrap">
-            <button class="primary" onclick="toast('Would navigate to firm mapping flow')">Map to a firm</button>
-            <button class="quiet" onclick="toast('Would open Policy Sets list view')">View all Policy Sets</button>
-            <button class="quiet" onclick="startPolicySet()">Create another Policy Set</button>
-          </div>
-        </div>
-      `;
-      setSticky({nextLabel:"Back to personas", secondaryLabel:"Policy Sets list", hint:"Create → map → operate"});
-      $("nextBtn").onclick = () => go("hub");
-      return;
-    }
+    // show/hide sticky buttons depending on step
+    const back = $('backBtn'), skip = $('skipBtn'), next = $('nextBtn');
+    if(back) back.disabled = (state.index===0);
+    if(skip) skip.style.display = (s.id==='document' ? 'inline-flex' : 'none');
+    if(next) next.textContent = (state.index === steps.length -1 ? 'Finish' : 'Next');
   }
 
-  function chooseMethod(m){
-    state.method = m;
+  // navigation functions
+  function next(){
+    if(state.index < steps.length - 1){ state.index++; renderStepper(); renderStep(); window.scrollTo(0,0); }
+    else { finish(); }
+  }
+  function back(){
+    if(state.index > 0){ state.index--; renderStepper(); renderStep(); window.scrollTo(0,0); }
+  }
+  function skip(){ state.index++; renderStepper(); renderStep(); }
+  function replaceFile(){ alert('Replace file - demo only'); }
+  function removeFile(){ alert('Remove file - demo only'); }
+  function skipAndEnter(){ alert('Skip and enter scope manually - demo only'); }
+
+  function finish(){ alert('Finish — demo complete'); }
+
+  // startup
+  document.addEventListener('DOMContentLoaded', ()=>{
+    renderStepper();
     renderStep();
-  }
-
-  function toggleRow(idx, checked){
-    state.scopeRows[idx].on = checked;
-  }
-
-  function toggleHeader(cb){
-    const checked = cb.checked;
-    state.scopeRows.forEach(r => r.on = checked);
-    renderStep();
-  }
-
-  function selectAll(on){
-    state.scopeRows.forEach(r => r.on = on);
-    renderStep();
-  }
-
-  function addTask(kind){
-    toast("Add task (prototype) — would open drawer");
-  }
-
-  function openTask(kind, idx){
-    if(kind === "reg") state.selectedRegTask = idx;
-    else state.selectedOrgTask = idx;
-    showDrawer(kind);
-    // keep list visible / primary focus; drawer is secondary
-    renderStep();
-  }
-
-  function showDrawer(kind){
-    const t = (kind === "reg") ? state.regTasks[state.selectedRegTask] : state.orgTasks[state.selectedOrgTask];
-    $("drawerContent").innerHTML = renderTaskDetail(t);
-    $("drawerOverlay").style.display = "flex";
-  }
-
-  function hideDrawer(){
-    $("drawerOverlay").style.display = "none";
-  }
-
-  function closeDrawer(e){
-    // click outside drawer closes
-    hideDrawer();
-  }
-
-  function renderTaskDetail(t){
-    return `
-      <h3>${escapeHtml(t.name)}</h3>
-      <p style="margin:0; color:#555; font-weight:700; line-height:1.35">${escapeHtml(t.desc)}</p>
-      <div class="kv">
-        <div class="k">Task type</div><div class="v">${escapeHtml(t.type)}</div>
-        <div class="k">Completed by</div><div class="v">${escapeHtml(t.who)}</div>
-        <div class="k">Approver</div><div class="v">${escapeHtml(t.approver)}</div>
-      </div>
-      <div class="divider"></div>
-      <div style="display:flex; gap:10px; flex-wrap:wrap">
-        <button class="primary" onclick="toast('Edit task (prototype)')">Edit task</button>
-        <button class="quiet" onclick="toast('Delete task (prototype)')">Delete</button>
-      </div>
-    `;
-  }
-
-  function jumpTo(stepId){
-    const idx = steps.findIndex(s => s.id === stepId);
-    if(idx >= 0){
-      state.stepIndex = idx;
-      renderStepper();
-      renderStep();
-      window.scrollTo({top:0, behavior:"smooth"});
-    }
-  }
-
-  function toast(msg){
-    const el = $("toast");
-    el.textContent = msg;
-    el.classList.remove("hidden");
-    clearTimeout(window.__toastTimer);
-    window.__toastTimer = setTimeout(() => el.classList.add("hidden"), 1400);
-  }
-
-  function escapeHtml(str){
-    return String(str)
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
-  }
-
-  // init
-  go("hub");
-
-  // Auto-start wizard on load (this file is the wizard entry point)
-  document.addEventListener("DOMContentLoaded", ()=>{
-    try{
-      if(state.screen !== "wizard"){ state.screen = "wizard"; }
-      go("wizard");
-    }catch(e){
-      console.error(e);
-      const c = document.getElementById("stepContent");
-      if(c) c.innerHTML = `<div class="panel" style="border-color:#b91c1c"><div style="font-weight:900">Error starting wizard</div><div class="muted" style="margin-top:6px">${String(e)}</div></div>`;
-    }
+    // make sure sticky visible
+    const st = $('sticky'); if(st) st.style.display = 'block';
   });
-
   </script>
 </body>
 </html>
