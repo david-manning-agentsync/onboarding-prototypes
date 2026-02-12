@@ -1,10 +1,13 @@
 <!doctype html>
 <html lang="en">
-<link rel="stylesheet" href="./nav.css">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Policy Set Wizard Prototype (Wireframe)</title>
+
+  <!-- Universal left nav CSS -->
+  <link rel="stylesheet" href="./nav.css">
+
   <style>
     :root{
       --bg:#ffffff;
@@ -17,10 +20,29 @@
       --radius:10px;
       --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+      /* Universal nav width */
+      --navw:240px;
     }
+
     *{box-sizing:border-box}
     body{margin:0; font-family:var(--sans); background:var(--bg); color:var(--text)}
     a{color:inherit}
+
+    /* ===== Universal nav mount ===== */
+    #leftNavMount{
+      position:fixed;
+      left:0; top:0; bottom:0;
+      width:var(--navw);
+      z-index:80;
+    }
+
+    /* Push prototype content to the right of nav */
+    .topbar,
+    .container{
+      margin-left:var(--navw);
+    }
+
     .topbar{
       position:sticky; top:0; z-index:20;
       background: #fff;
@@ -46,6 +68,7 @@
       font-size:12px;
       font-weight:700;
     }
+
     .container{max-width:1100px; margin:0 auto; padding:18px 16px 90px;}
     .title{font-size:26px; font-weight:900; letter-spacing:-.2px; margin:0}
     .subtitle{margin:8px 0 0; color:var(--muted); line-height:1.35}
@@ -139,15 +162,19 @@
     .content h2{margin:0 0 8px; font-size:18px; font-weight:900}
     .content p{margin:0; color:var(--muted); font-size:13px; line-height:1.4}
 
+    /* Sticky bar starts to the right of nav */
     .stickybar{
-      position:fixed; left:0; right:0; bottom:0; z-index:30;
+      position:fixed; left:var(--navw); right:0; bottom:0; z-index:30;
       background:#fff;
       border-top:2px solid var(--line);
     }
     .stickybar-inner{
       max-width:1100px; margin:0 auto;
       padding:10px 16px;
-      display:flex; justify-content:space-between; align-items:center; gap:12px;
+      display:flex;
+      justify-content:flex-end;   /* right aligned */
+      align-items:center;
+      gap:12px;
     }
     .kbd{
       font-family:var(--mono);
@@ -310,7 +337,6 @@
     .summarycard h3{margin:0 0 6px; font-size:14px; font-weight:900}
     .summarycard p{margin:0; color:var(--muted); font-size:13px; line-height:1.35}
 
-    
     .grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
     .usecases{margin:10px 0 12px; padding-left:18px}
     .usecases li{margin:6px 0; color:var(--muted); font-weight:800; font-size:13px}
@@ -322,7 +348,12 @@
     }
 
     .hidden{display:none !important}
+
     @media (max-width: 980px){
+      /* mobile: let nav stack normally */
+      #leftNavMount{position:static; width:auto}
+      .topbar, .container{margin-left:0}
+      .stickybar{left:0}
       .wizard{grid-template-columns: 1fr}
       .grid2{grid-template-columns:1fr}
       .input{width:100%}
@@ -330,14 +361,16 @@
     }
   </style>
 </head>
-<body>
+
+<body data-nav="policy-sets">
+  <!-- universal nav mount -->
   <div id="leftNavMount"></div>
+
   <div class="topbar">
     <div class="topbar-inner">
-      <div class="brand" onclick="goHome()">
+      <div class="brand">
         <div class="logo"></div>
         <div>Wireframe Prototype</div>
-        <span class="kbd">Home</span>
       </div>
       <div style="display:flex; gap:10px; align-items:center">
         <div class="pill">Help</div>
@@ -348,14 +381,13 @@
 
   <div class="container">
 
-<!-- WIZARD -->
+    <!-- WIZARD -->
     <section id="wizard" class="screen hidden">
       <div class="wizard">
         <aside class="card sidebar">
           <p class="small">Create Policy Set</p>
           <div id="stepper"></div>
-          <div class="divider"></div>
-          <button class="quiet" onclick="goHome()" style="width:100%">Back to personas</button>
+          <!-- Removed Back to personas button (handled by left nav) -->
         </aside>
 
         <main class="card content">
@@ -365,17 +397,14 @@
     </section>
   </div>
 
-  <!-- Sticky nav -->
+  <!-- Sticky nav (right aligned only) -->
   <div id="sticky" class="stickybar hidden">
     <div class="stickybar-inner">
-      <div style="display:flex; gap:10px; align-items:center">
-        <button class="quiet" id="backBtn" onclick="back()">Back</button>
-        <span class="kbd" id="hint"></span>
-      </div>
-      <div style="display:flex; gap:10px; align-items:center">
-        <button class="quiet hidden" id="secondaryBtn" onclick="secondaryAction()"> </button>
-        <button class="primary" id="nextBtn" onclick="next()">Next</button>
-      </div>
+      <button class="quiet" id="backBtn" onclick="back()">Back</button>
+      <button class="quiet hidden" id="secondaryBtn" onclick="secondaryAction()"> </button>
+      <button class="primary" id="nextBtn" onclick="next()">Next</button>
+      <!-- keep hint element for JS, but hide it so no "pill" shows -->
+      <span class="kbd" id="hint" style="display:none"></span>
     </div>
   </div>
 
@@ -393,6 +422,28 @@
       <div id="drawerContent"></div>
     </div>
   </div>
+
+  <!-- Inject nav.html -->
+  <script>
+  (async function loadNav(){
+    const mount = document.getElementById('leftNavMount');
+    if(!mount) return;
+    try{
+      const res = await fetch('./nav.html', {cache:'no-store'});
+      mount.innerHTML = await res.text();
+
+      // highlight active item
+      const activeKey = document.body.getAttribute('data-nav');
+      if(activeKey){
+        mount.querySelectorAll('.navItem').forEach(a=>{
+          a.classList.toggle('active', a.dataset.nav === activeKey);
+        });
+      }
+    }catch(e){
+      console.warn('Could not load nav.html', e);
+    }
+  })();
+  </script>
 
 <script>
   const steps = [
@@ -434,13 +485,6 @@
   };
 
   function $(id){ return document.getElementById(id); }
-  const __params = new URLSearchParams(window.location.search);
-  const __home = __params.get("home") || "./index.html";
-
-  function goHome(){
-    window.location.href = __home;
-  }
-
 
   function go(screen){
     state.screen = screen;
@@ -456,11 +500,6 @@
       $("sticky").classList.add("hidden");
     }
     hideDrawer();
-  }
-
-  function startPolicySet(){
-    state.stepIndex = 0;
-    go("wizard");
   }
 
   function renderStepper(){
@@ -488,7 +527,11 @@
   }
 
   function back(){
-    if(state.stepIndex === 0){ goHome(); return; }
+    if(state.stepIndex === 0){
+      // Exec demo: don't jump away. Use left nav to go to Personas.
+      toast("Use the left nav to return to Personas.");
+      return;
+    }
     state.stepIndex -= 1;
     renderStepper();
     renderStep();
@@ -517,7 +560,10 @@
 
   function setSticky({nextLabel="Next", secondaryLabel="", hint=""}){
     $("nextBtn").textContent = nextLabel;
+
+    // keep hint element for logic, but don't show it
     $("hint").textContent = hint || "";
+
     const s = $("secondaryBtn");
     if(!secondaryLabel){
       s.classList.add("hidden");
@@ -531,7 +577,8 @@
     const id = steps[state.stepIndex].id;
     const c = $("stepContent");
 
-    $("backBtn").textContent = (state.stepIndex === 0) ? "Back to Prototype Hub" : "Back";
+    // Always "Back" in exec demo
+    $("backBtn").textContent = "Back";
     $("nextBtn").onclick = next;
 
     if(id === "method"){
@@ -786,10 +833,17 @@
           </div>
         </div>
       `;
-      setSticky({nextLabel:"Back to Prototype Hub", secondaryLabel:"Policy Sets list", hint:"Create → map → operate"});
-      $("nextBtn").onclick = () => goHome();
+
+      // Exec-clean sticky labels
+      setSticky({nextLabel:"Done", secondaryLabel:"Policy Sets list", hint:""});
+      $("nextBtn").onclick = () => toast("Done (prototype)");
       return;
     }
+  }
+
+  function startPolicySet(){
+    state.stepIndex = 0;
+    go("wizard");
   }
 
   function chooseMethod(m){
@@ -820,7 +874,6 @@
     if(kind === "reg") state.selectedRegTask = idx;
     else state.selectedOrgTask = idx;
     showDrawer(kind);
-    // keep list visible / primary focus; drawer is secondary
     renderStep();
   }
 
@@ -835,7 +888,6 @@
   }
 
   function closeDrawer(e){
-    // click outside drawer closes
     hideDrawer();
   }
 
