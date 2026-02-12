@@ -1,75 +1,90 @@
-/* nav.css — universal left nav (light, bordered, no pills) */
+/* nav.css */
 
 :root{
   --navw: 240px;
-  --line: #111111;
-  --line2: #bbbbbb;
-  --bg: #ffffff;
-  --muted: #666666;
-  --radius: 12px;
-  --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  --navBorder: #111;
+  --navText: #111;
+  --navMuted: #555;
+  --navBg: #fff;
+  --navActiveBg: #fff;
 }
 
+/* the fixed left rail */
 .nav{
   position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
+  inset: 0 auto 0 0;           /* top right bottom left */
   width: var(--navw);
-  background: var(--bg);
-  border-right: 2px solid var(--line);
-  padding: 18px 14px;
-  overflow: auto;
+  background: var(--navBg);
+  border-right: 2px solid var(--navBorder);
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  font-family: var(--sans);
+  padding: 18px 16px;
+  gap: 16px;
+  z-index: 999;               /* stays above page content */
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
 }
 
-.brand{
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  font-size: 14px;
-}
-
-.navSection{
+/* top stack of links */
+.navTop{
   display: flex;
   flex-direction: column;
-  gap: 6px;
-}
-
-.navItem{
-  display: flex;
-  align-items: center;
   gap: 10px;
-  padding: 10px 10px;
-  border-radius: var(--radius);
-  border: 2px solid transparent;
+}
+
+/* footer pinned to bottom */
+.navFooter{
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 2px solid #bdbdbd;
+}
+
+/* shared nav item style */
+.navItem{
+  display: block;
   text-decoration: none;
-  color: var(--line);
+  color: var(--navText);
   font-weight: 900;
-  font-size: 13px;
+  font-size: 16px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 2px solid transparent;
 }
 
 .navItem:hover{
-  border-color: var(--line2);
-  background: #f7f7f7;
+  border-color: #bdbdbd;
+  background: #f5f5f5;
 }
 
+/* active page highlight */
 .navItem.active{
-  border-color: var(--line);
-  background: #ffffff;
+  border-color: var(--navBorder);
+  background: var(--navActiveBg);
 }
 
-.navBottom{
-  margin-top: auto;
-  padding-top: 12px;
-  border-top: 2px solid var(--line2);
+/* make footer item look like a primary “return” action */
+.navFooterItem{
+  font-weight: 900;
 }
 
-.navHint{
-  color: var(--muted);
-  font-weight: 800;
-  font-size: 12px;
-  line-height: 1.3;
+/* mobile: let it flow normally if you want */
+@media (max-width: 980px){
+  .nav{
+    position: static;
+    width: auto;
+    border-right: none;
+    border-bottom: 2px solid var(--navBorder);
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+  .navTop{
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .navFooter{
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
 }
