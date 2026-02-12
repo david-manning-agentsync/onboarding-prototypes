@@ -343,9 +343,26 @@
     .usecases a{color:var(--text); text-decoration:underline; font-weight:900}
     .usecases a.muted{color:var(--muted); text-decoration:none; font-weight:800}
     .usecases a:hover{text-decoration:underline}
-    @media (max-width: 980px){
-      .grid3{grid-template-columns:1fr}
-    }
+  @media (max-width: 980px){
+  .grid3{grid-template-columns:1fr}
+}
+
+/* Reserve space for the fixed left nav */
+body{ padding-left: var(--navw); }
+
+/* These no longer need margin-left because body padding handles it */
+.topbar, .container{ margin-left: 0 !important; }
+
+/* Sticky bar starts to the right of nav */
+.stickybar{ left: var(--navw) !important; right: 0; }
+
+/* Keep a safe mobile override so padding is removed on small screens */
+@media (max-width: 980px){
+  body{ padding-left: 0 !important; }
+  #leftNavMount{position:static; width:auto}
+  .topbar, .container{margin-left:0}
+  .stickybar{left:0}
+}
 
     .hidden{display:none !important}
 
