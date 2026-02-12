@@ -1,0 +1,1279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OM • Producers (Wireframe Prototype)</title>
+<style>
+  :root{
+    --bg:#fff;
+    --text:#111;
+    --muted:#666;
+    --line:#111;
+    --line2:#bbb;
+    --panel:#fff;
+    --navw:240px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; background:var(--bg); color:var(--text) display:flex; min-height:100vh;}
+  a{color:inherit}
+    .nav{
+    width:var(--navw); border-right:2px solid var(--line);
+    padding:18px 14px; position:fixed; left:0; top:0; bottom:0; background:#fff;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .brand{font-weight:900; letter-spacing:-0.02em}
+  .navSection{display:flex; flex-direction:column; gap:6px}
+  .navItem{display:flex; gap:10px; align-items:center; padding:8px 10px; border:2px solid transparent; border-radius:10px; cursor:pointer}
+  .navItem:hover{border-color:var(--line2)}
+  .navItem.active{border-color:var(--line)}
+  .navBottom{margin-top:auto; padding-top:10px; border-top:2px solid var(--line2)}
+  .content{margin-left:var(--navw); width:calc(100% - var(--navw))}
+  .topbar{
+    position:sticky; top:0; background:#fff; z-index:5;
+    border-bottom:2px solid var(--line);
+    padding:10px 16px 12px;
+  }
+  .topRow{display:flex; align-items:flex-end; justify-content:space-between; gap:10px}
+  .objTitle{font-weight:900; font-size:16px; letter-spacing:-0.02em}
+  .objSub{font-size:12px; margin-top:2px}
+  .topRow2{display:flex; gap:10px; align-items:flex-end; margin-top:10px; flex-wrap:wrap}
+  .searchWrap{flex:1 1 720px}
+  .searchPrimary{width:100%; padding:10px 12px; font-size:14px}
+  .btnWrap{display:flex; gap:10px; justify-content:flex-end; flex:0 0 auto; margin-left:auto}
+  h1{margin:0; font-size:20px; letter-spacing:-0.02em}
+  .muted{color:var(--muted)}
+  .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+  .input{
+    border:2px solid var(--line);
+    border-radius:10px; padding:8px 10px;
+    background:#fff; color:#111;
+  }
+  .btn{
+    border:2px solid var(--line);
+    border-radius:10px;
+    padding:8px 10px;
+    background:#fff; cursor:pointer;
+    font-weight:900;
+  }
+  .btn:hover{background:#f6f6f6}
+  .btn.quiet{border-color:var(--line2); font-weight:800; color:#222}
+  .btn.danger{border-color:var(--line); background:#fff}
+  .chip{border:2px solid var(--line2); border-radius:999px; padding:2px 8px; font-size:12px; font-weight:900; color:var(--muted)}
+  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+  .page{padding:16px}
+  .tableWrap{
+    border:2px solid var(--line);
+    border-radius:14px;
+    overflow:hidden;
+    background:#fff;
+  }
+  table{width:100%; border-collapse:separate; border-spacing:0}
+  thead th{
+    text-align:left;
+    font-size:12px;
+    color:#333;
+    border-bottom:2px solid var(--line);
+    padding:10px 10px;
+    background:#fff;
+    position:sticky; top:0; z-index:2;
+    cursor:pointer;
+    user-select:none;
+  }
+  tbody td{
+    border-bottom:1px solid #ddd;
+    padding:10px 10px;
+    vertical-align:top;
+    font-size:13px;
+  }
+  tbody tr:hover{background:#fafafa}
+  .cellLink{cursor:pointer; text-decoration:underline; text-underline-offset:3px}
+  .check{width:18px; height:18px}
+  .actionBar{
+    position:fixed;
+    left:var(--navw);
+    right:0;
+    bottom:0;
+    background:#fff;
+    border-top:2px solid var(--line);
+    padding:10px 16px;
+    display:none;
+    z-index:6;
+  }
+
+  /* Drawers (stacked) */
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(0,0,0,.10);
+    display:none;
+  }
+  .drawer{position:fixed; top:0; right:0; height:100vh; width:520px; background:#fff; border-left:2px solid var(--line); box-shadow:-6px 0 0 rgba(0,0,0,.02); z-index:5001; display:none; flex-direction:column;}
+  .drawerHead{padding:12px 14px; border-bottom:2px solid var(--line); display:flex; align-items:flex-start; justify-content:space-between; gap:10px; background:#fff; flex:0 0 auto;}
+  .drawer.wizard .drawerHead{background:#f2f2f2}
+  .drawerBody{padding:12px 14px; overflow:auto; flex:1; min-height:0;}
+  .drawerFoot{padding:12px 14px; border-top:2px solid var(--line); background:#fff; position:sticky; bottom:0; display:flex; justify-content:flex-end; gap:10px; width:100%; flex:0 0 auto;}
+  .panel{
+    border:2px solid var(--line);
+    border-radius:14px;
+    padding:12px;
+    background:#fff;
+  }
+  .list{border:2px solid var(--line); border-radius:14px; overflow:hidden}
+  .listRow{
+    display:flex; justify-content:space-between; gap:10px; align-items:flex-start;
+    padding:10px 12px; border-bottom:1px solid #ddd;
+  }
+  .listRow:last-child{border-bottom:none}
+  .listTitle{font-weight:900}
+  .listMeta{font-size:12px; color:var(--muted); margin-top:2px}
+  .tags{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px}
+  .toggleRow{display:flex; align-items:center; gap:10px; justify-content:flex-end}
+  .stateText{font-size:12px; font-weight:900; color:var(--muted)}
+  .stepper{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px}
+  .step{border:2px solid var(--line2); border-radius:999px; padding:2px 8px; font-size:11px; font-weight:900; color:var(--muted)}
+  .step.active{border-color:var(--line); color:var(--text); background:#fff}
+
+  /* Toast (centered in content area) */
+  .toast{
+    position:fixed;
+    left:calc(var(--navw) + (100vw - var(--navw))/2);
+    transform:translateX(-50%);
+    top:16px;
+    background:#fff;
+    border:3px solid var(--line);
+    border-radius:999px;
+    padding:10px 14px;
+    font-weight:900;
+    display:none;
+    z-index:9999;
+    box-shadow:0 6px 0 0 #111;
+  }
+  @media (max-width:760px){
+    .nav{position:static; width:100%; height:auto}
+    .content{margin-left:0; width:100%}
+    .actionBar{left:0}
+    .toast{left:50%}
+  }
+
+  input[type=checkbox]{width:18px; height:18px;}
+
+  .linkBtn{border:none; background:transparent; padding:0; text-decoration:underline; font-weight:700; cursor:pointer;}
+
+  .selectorShell{display:flex; flex-direction:column; height:100%;}
+  .selectorTop{position:sticky; top:0; background:#fff; padding:12px 14px; border-bottom:2px solid var(--line); z-index:2;}
+  .selectorList{flex:1; min-height:0; overflow:auto; padding:12px 14px;}
+  .selectorFoot{position:sticky; bottom:0; background:#fff; padding:12px 14px; border-top:2px solid var(--line); z-index:2; display:flex; justify-content:flex-end; gap:10px;}
+  .drawerBody.noPad{padding:0;}
+</style>
+</head>
+<body>
+
+  <aside class="nav">
+    <div class="brand">Onboarding • Wireframe</div>
+    
+    <div class="navSection">
+      <div class="navItem active" id="navProducers" style="cursor:pointer">Producers</div>
+      <div class="navItem" style="pointer-events:none; opacity:.55">Tasks</div>
+      <div class="navItem" style="pointer-events:none; opacity:.55">Messages</div>
+      <div class="navItem" style="pointer-events:none; opacity:.55">Policy Sets</div>
+      <div class="navItem" style="pointer-events:none; opacity:.55">Businesses</div>
+    </div>
+    <div class="navBottom">
+      <div class="navItem" style="pointer-events:none; opacity:.55">Settings</div>
+    </div>
+
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="topbar">
+      <div class="topRow">
+        <button class="btn" id="backBtn" style="display:none" onclick="goBackToProducers()">← Producers</button>
+        <div>
+          <div class="objTitle" id="title">Producers</div>
+          <div class="muted objSub" id="subtitle">Invite and manage producer onboarding.</div>
+        </div>
+      </div>
+
+      <div class="topRow2">
+        <div class="searchWrap">
+          <input id="search" class="input searchPrimary" placeholder="Search producers by name, email, status, businesses…" />
+        </div>
+        <div class="btnWrap" id="topActions">
+          <button class="btn" onclick="openDrawer('addProducer')">Add producer</button>
+          <button class="btn" onclick="openDrawer('bulkInvite')">Bulk invite</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="screen"></div>
+
+    <div class="actionBar" id="actionBar">
+      <div class="row" style="justify-content:space-between; align-items:center">
+        <div>
+          <span class="chip" id="selCount">0 selected</span><button class="linkBtn" onclick="clearSelected()">Clear</button>
+        </div>
+        <div class="row">
+          <button class="btn" onclick="openDrawer('assignBusinesses')">Assign business(es)</button>
+          <button class="btn" onclick="openDrawer('bulkPolicySets')">Modify policy sets</button>
+          <button class="btn" onclick="openDrawer('message')">Message</button>
+          <button class="btn" onclick="openDrawer('offboard')">Offboard</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+
+<div class="toast" id="toast"></div>
+
+<!-- STACKED DRAWERS -->
+<div class="overlay" id="ov0" onclick="closeTop()"></div>
+<div class="drawer" id="dr0" aria-hidden="true"></div>
+
+<script>
+/* ---------- Data ---------- */
+const businesses = [
+  {id:"BUS-AG-001", name:"Acme Agency", type:"Agency", npn:"987654"},
+  {id:"BUS-AG-002", name:"Beacon Agency", type:"Agency", npn:"123987"},
+  {id:"BUS-AG-003", name:"Crescent Agency", type:"Agency", npn:"554433"},
+  {id:"BUS-CAR-010", name:"Carrier Alpha", type:"Carrier", npn:"112233"},
+  {id:"BUS-CAR-011", name:"Carrier Beta", type:"Carrier", npn:"223344"},
+  {id:"BUS-CAR-012", name:"Carrier Gamma", type:"Carrier", npn:"334455"},
+  {id:"BUS-CAR-013", name:"Carrier Delta", type:"Carrier", npn:"445566"},
+  {id:"BUS-CAR-014", name:"Carrier Epsilon", type:"Carrier", npn:"556677"},
+  {id:"BUS-CAR-015", name:"Carrier Zeta", type:"Carrier", npn:"667788"},
+  {id:"BUS-CAR-016", name:"Carrier Eta", type:"Carrier", npn:"778899"},
+  {id:"BUS-CAR-017", name:"Carrier Theta", type:"Carrier", npn:"889900"},
+  {id:"BUS-TPA-020", name:"Third-Party Admin", type:"TPA", npn:"—"},
+  {id:"BUS-EDU-030", name:"Training Vendor", type:"Vendor", npn:"—"},
+  {id:"BUS-ADM-040", name:"Internal Admin Org", type:"Internal", npn:"—"}
+];
+
+const orgPolicySets = [
+  {id:"ORG-ONB-001", name:"Agency onboarding (org-wide)", kind:"required"},
+  {id:"ORG-SEC-002", name:"Security & compliance attestations", kind:"required"},
+  {id:"ORG-IDV-003", name:"Identity verification", kind:"required"},
+  {id:"ORG-DATA-004", name:"Data consent & disclosures", kind:"required"}
+];
+
+const businessPolicySets = [
+  {id:"PS-CAR-ALPHA-APPT", name:"Carrier Alpha — Appointment", businesses: {"BUS-CAR-010":"required","BUS-CAR-011":"optional"}},
+  {id:"PS-CAR-ALPHA-PROD", name:"Carrier Alpha — Product training", businesses: {"BUS-CAR-010":"optional","BUS-CAR-016":"optional"}},
+  {id:"PS-CAR-ALPHA-AML", name:"Carrier Alpha — AML training", businesses: {"BUS-CAR-010":"optional"}},
+  {id:"PS-CAR-BETA-APPT", name:"Carrier Beta — Appointment", businesses: {"BUS-CAR-011":"required"}},
+  {id:"PS-CAR-BETA-PROD", name:"Carrier Beta — Product training", businesses: {"BUS-CAR-011":"optional"}},
+  {id:"PS-CAR-GAMMA-APPT", name:"Carrier Gamma — Appointment", businesses: {"BUS-CAR-012":"required","BUS-CAR-013":"optional"}},
+  {id:"PS-CAR-GAMMA-PROD", name:"Carrier Gamma — Product training", businesses: {"BUS-CAR-012":"optional"}},
+  {id:"PS-CAR-DELTA-APPT", name:"Carrier Delta — Appointment", businesses: {"BUS-CAR-013":"required"}},
+  {id:"PS-CAR-DELTA-PROD", name:"Carrier Delta — Product training", businesses: {"BUS-CAR-013":"optional"}},
+  {id:"PS-CAR-EPS-APPT", name:"Carrier Epsilon — Appointment", businesses: {"BUS-CAR-014":"optional"}},
+  {id:"PS-CAR-ZETA-APPT", name:"Carrier Zeta — Appointment", businesses: {"BUS-CAR-015":"required"}},
+  {id:"PS-CAR-ZETA-PROD", name:"Carrier Zeta — Product training", businesses: {"BUS-CAR-015":"optional"}},
+  {id:"PS-CAR-ETA-APPT", name:"Carrier Eta — Appointment", businesses: {"BUS-CAR-016":"required"}},
+  {id:"PS-CAR-THETA-APPT", name:"Carrier Theta — Appointment", businesses: {"BUS-CAR-017":"optional"}},
+];
+
+const allPolicySets = [...orgPolicySets, ...businessPolicySets.map(p=>({id:p.id,name:p.name,kind:"mixed"}))];
+
+const producers = [
+  mkProducer("P-1001","Jamie Smith","jamie@demo.com","1234567",["BUS-AG-001", "BUS-CAR-010"],"Onboarding", {"ORG-ONB-001": "In progress", "ORG-SEC-002": "Not started", "ORG-IDV-003": "Not started", "ORG-DATA-004": "Not started", "PS-CAR-ALPHA-APPT": "In progress"}),
+  mkProducer("P-1002","Morgan Lee","morgan@demo.com","",["BUS-AG-001", "BUS-CAR-011"],"Invited", {"ORG-ONB-001": "Not started", "ORG-SEC-002": "Not started", "ORG-IDV-003": "Not started", "ORG-DATA-004": "Not started", "PS-CAR-BETA-APPT": "Not started"}),
+  mkProducer("P-1003","Taylor Kim","taylor@demo.com","7711223",["BUS-AG-001"],"Not Started", {"ORG-ONB-001": "Not started", "ORG-SEC-002": "Not started", "ORG-IDV-003": "Not started", "ORG-DATA-004": "Not started"}),
+  mkProducer("P-1004","Casey Patel","casey@demo.com","9900112",["BUS-AG-001", "BUS-CAR-012"],"Needs Review", {"ORG-ONB-001": "In progress", "ORG-SEC-002": "Not started", "ORG-IDV-003": "Not started", "ORG-DATA-004": "Not started", "PS-CAR-GAMMA-APPT": "Not started"}),
+  mkProducer("P-1005","Avery Johnson","avery@demo.com","",["BUS-AG-002", "BUS-CAR-010"],"Completed", {"ORG-ONB-001": "Complete", "ORG-SEC-002": "Complete", "ORG-IDV-003": "Complete", "ORG-DATA-004": "Complete", "PS-CAR-ALPHA-APPT": "Complete"}),
+  mkProducer("P-1006","Riley Chen","riley@demo.com","4433221",["BUS-AG-001", "BUS-CAR-014"],"Onboarding", {"ORG-ONB-001": "In progress", "ORG-SEC-002": "Not started", "ORG-IDV-003": "In progress", "ORG-DATA-004": "Not started"}),
+  mkProducer("P-1007","Jordan Nguyen","jordan@demo.com","",["BUS-AG-001", "BUS-CAR-013"],"Offboarding", {"ORG-ONB-001": "Complete", "ORG-SEC-002": "Complete", "ORG-IDV-003": "Complete", "ORG-DATA-004": "Complete", "PS-CAR-DELTA-APPT": "In progress"}),
+  mkProducer("P-1008","Sam Rivera","sam@demo.com","5566778",["BUS-AG-003", "BUS-CAR-015"],"Onboarding", {"ORG-ONB-001": "In progress", "ORG-SEC-002": "Not started", "ORG-IDV-003": "Not started", "ORG-DATA-004": "Not started", "PS-CAR-ZETA-APPT": "Not started"}),
+  mkProducer("P-1009","Quinn Park","quinn@demo.com","",["BUS-AG-002", "BUS-CAR-016"],"Invited", {"ORG-ONB-001": "Not started", "ORG-SEC-002": "Not started", "ORG-IDV-003": "Not started", "ORG-DATA-004": "Not started", "PS-CAR-ETA-APPT": "Not started"}),
+  mkProducer("P-1010","Drew Wilson","drew@demo.com","9988776",["BUS-AG-001", "BUS-CAR-010", "BUS-CAR-011"],"Onboarding", {"ORG-ONB-001": "In progress", "ORG-SEC-002": "In progress", "ORG-IDV-003": "Not started", "ORG-DATA-004": "Not started", "PS-CAR-ALPHA-APPT": "In progress", "PS-CAR-BETA-APPT": "Not started"}),
+  mkProducer("P-1011","Alex Brooks","alex@demo.com","",["BUS-AG-003"],"Not Started", {"ORG-ONB-001": "Not started", "ORG-SEC-002": "Not started", "ORG-IDV-003": "Not started", "ORG-DATA-004": "Not started"}),
+  mkProducer("P-1012","Skyler Adams","skyler@demo.com","1122009",["BUS-AG-002", "BUS-CAR-012", "BUS-CAR-013"],"Onboarding", {"ORG-ONB-001": "In progress", "ORG-SEC-002": "Not started", "ORG-IDV-003": "In progress", "ORG-DATA-004": "Not started", "PS-CAR-GAMMA-APPT": "In progress", "PS-CAR-DELTA-APPT": "Not started"}),
+  mkProducer("P-1013","Emerson Gray","emerson@demo.com","",["BUS-AG-001", "BUS-CAR-017"],"Invited", {"ORG-ONB-001": "Not started", "ORG-SEC-002": "Not started", "ORG-IDV-003": "Not started", "ORG-DATA-004": "Not started"}),
+  mkProducer("P-1014","Peyton Ortiz","peyton@demo.com","4433900",["BUS-AG-003", "BUS-CAR-010"],"Needs Review", {"ORG-ONB-001": "In progress", "ORG-SEC-002": "Not started", "ORG-IDV-003": "Not started", "ORG-DATA-004": "Not started", "PS-CAR-ALPHA-APPT": "Not started"}),
+  mkProducer("P-1015","Harper Singh","harper@demo.com","",["BUS-AG-002", "BUS-CAR-011", "BUS-CAR-014"],"Onboarding", {"ORG-ONB-001": "In progress", "ORG-SEC-002": "Not started", "ORG-IDV-003": "Not started", "ORG-DATA-004": "Not started", "PS-CAR-BETA-APPT": "In progress"}),
+  mkProducer("P-1016","Rowan Davis","rowan@demo.com","6677889",["BUS-AG-001", "BUS-CAR-015", "BUS-CAR-016"],"Onboarding", {"ORG-ONB-001": "In progress", "ORG-SEC-002": "Not started", "ORG-IDV-003": "Not started", "ORG-DATA-004": "Not started", "PS-CAR-ZETA-APPT": "Not started", "PS-CAR-ETA-APPT": "Not started"})
+];
+
+function mkProducer(id,name,email,npn,businessIds,status,byPolicy){
+  const by = {...byPolicy};
+  // compute totals
+  const total = Object.keys(by).length;
+  const done = Object.values(by).filter(s=>s==="Complete").length;
+  return {
+    id,name,email,npn, businessIds, status,
+    created:"2026-01-10", modified:"2026-02-10", createdBy:"OM",
+    policyProgress:{done,total, byPolicy:by}
+  };
+}
+
+/* ---------- State ---------- */
+let currentScreen="producers";
+let selected = new Set();
+let sortKey="name";
+let sortDir=1; // 1 asc, -1 desc
+let currentTaskContext = null;
+
+/* Drawer stack manager */
+let stack = []; // {overlay, drawer, type, title, render}
+const ov = document.getElementById("ov0");
+const dr = document.getElementById("dr0");
+
+/* ---------- Utilities ---------- */
+const $ = (id)=>document.getElementById(id);
+function esc(s){return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function toast(msg){
+  const t = $("toast");
+  t.textContent = msg;
+  t.style.display="block";
+  clearTimeout(window.__toastT);
+  window.__toastT = setTimeout(()=>{ t.style.display="none"; }, 2200);
+}
+
+function goBackToProducers(){
+  currentScreen="producers";
+  currentTaskContext=null;
+  render();
+  updateActionBar();
+}
+
+/* ---------- Navigation ---------- */
+$("search").addEventListener("input", ()=>render());
+
+
+/* ---------- Quick nav (prototype) ---------- */
+document.addEventListener("DOMContentLoaded", ()=>{
+  const np = document.getElementById("navProducers");
+  if(np){
+    np.addEventListener("click", ()=>{
+      currentScreen="producers";
+      currentTaskContext=null;
+      render();
+      updateActionBar();
+    });
+  }
+});
+/* ---------- Rendering ---------- */
+function render(){
+  const screen = $("screen");
+  const title = $("title");
+  const sub = $("subtitle");
+  const topActions = $("topActions");
+  const search = $("search");
+  const backBtn = document.getElementById("backBtn");
+
+  if(currentScreen==="producers"){
+    title.textContent="Producers";
+    sub.textContent="Invite and manage producer onboarding.";
+    topActions.style.display="flex";
+    search.style.display="inline-block";
+    if(backBtn) backBtn.style.display="none";
+    search.placeholder="Search producers by name, email, status, businesses…";
+    screen.innerHTML = renderProducers();
+    try{
+      const q = ($("search").value||"").trim().toLowerCase();
+      const visible = producers.filter(p=>{
+        const bizNames = (p.businessIds||[]).map(id=>businesses.find(b=>b.id===id)?.name||"").join(" ");
+        const hay = (p.name+" "+p.email+" "+(p.npn||"")+" "+p.status+" "+bizNames).toLowerCase();
+        return !q || hay.includes(q);
+      });
+      $("selectAll").checked = visible.length && visible.every(p=>selected.has(p.id));
+    }catch(e){}
+  } else if(currentScreen==="tasks"){
+    title.textContent="Tasks";
+    sub.textContent="Task list (opened from a producer’s Progress).";
+    topActions.style.display="none";
+    search.style.display="inline-block";
+    if(backBtn) backBtn.style.display="inline-flex";
+    search.placeholder="Search tasks…";
+    screen.innerHTML = renderTasks();
+  } else {
+    // (navigation disabled in this prototype)
+    title.textContent="Producers";
+    sub.textContent="Invite and manage producer onboarding.";
+    topActions.style.display="flex";
+    search.style.display="inline-block";
+    search.placeholder="Search producers by name, email, status, businesses…";
+    currentScreen="producers";
+    screen.innerHTML = renderProducers();
+  }
+}
+
+function renderProducers(){
+  const q = $("search").value.trim().toLowerCase();
+  let rows = producers.filter(p=>{
+    if(!q) return true;
+    const bizNames = (p.businessIds||[]).map(id=>businesses.find(b=>b.id===id)?.name||"").join(" ");
+    return (p.name+" "+p.email+" "+p.npn+" "+p.status+" "+bizNames).toLowerCase().includes(q);
+  });
+
+  rows.sort((a,b)=>{
+    const va = (sortKey==="progress") ? (a.policyProgress.done/a.policyProgress.total || 0)
+             : (sortKey==="businesses") ? (a.businessIds||[]).length
+             : (a[sortKey]||"");
+    const vb = (sortKey==="progress") ? (b.policyProgress.done/b.policyProgress.total || 0)
+             : (sortKey==="businesses") ? (b.businessIds||[]).length
+             : (b[sortKey]||"");
+    if(typeof va==="number" && typeof vb==="number") return (va-vb)*sortDir;
+    return String(va).localeCompare(String(vb))*sortDir;
+  });
+
+  const th = (label,key)=>`<th onclick="setSort('${key}')">${label}${sortKey===key? (sortDir===1?" ▲":" ▼"):""}</th>`;
+
+  const body = rows.map(p=>{
+    const checked = selected.has(p.id) ? "checked" : "";
+    const bizText = (p.businessIds||[]).map(id=> businesses.find(b=>b.id===id)).filter(Boolean)
+      .map(b=> `${esc(b.name)} (${esc(b.type)})`).join(", ");
+    const progressText = `${p.policyProgress.done}/${p.policyProgress.total}`;
+    return `
+      <tr>
+        <td style="width:42px"><input class="check" type="checkbox" ${checked} onchange="toggleSelect('${p.id}', this.checked)"/></td>
+        <td>
+          <div style="font-weight:900">${esc(p.name)}</div>
+          <div class="muted" style="font-size:12px">${esc(p.email)}</div>
+        </td>
+        <td class="mono">${esc(p.npn||"—")}</td>
+        <td class="cellLink" onclick="openProducerBusinesses('${p.id}')">${bizText || `<span class="muted">None</span>`}</td>
+        <td class="mono">${esc(p.status)}</td>
+        <td class="cellLink" onclick="openProducerProgress('${p.id}')">${progressText}</td>
+        <td class="mono">${esc(p.modified)}</td>
+      </tr>
+    `;
+  }).join("");
+
+  return `
+    <div class="tableWrap">
+      <div style="max-height:calc(100vh - 220px); overflow:auto">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:42px"><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this.checked)"/></th>
+              ${th("Producer","name")}
+              ${th("NPN","npn")}
+              ${th("Businesses","businesses")}
+              ${th("Status","status")}
+              ${th("Progress","progress")}
+              ${th("Last modified","modified")}
+            </tr>
+          </thead>
+          <tbody>${body || `<tr><td colspan="7" class="muted" style="padding:14px">No producers found.</td></tr>`}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function renderTasks(){
+  const q = ($("search").value||"").trim().toLowerCase();
+  if(!currentTaskContext){
+    return `<div class="panel"><div class="muted">Open a producer’s Progress drawer, then click a policy set.</div><div style="margin-top:10px"><button class="btn" onclick="goBackToProducers()">Back to producers</button></div></div>`;
+  }
+  const p = producers.find(x=>x.id===currentTaskContext.pid);
+  const ps = allPolicySets.find(x=>x.id===currentTaskContext.psid);
+  const tasks = [
+    {name:"Upload license details", status:"Not started"},
+    {name:"Complete product training", status:"In progress"},
+    {name:"Submit appointment request", status:"Not started"},
+    {name:"Review & attest", status:"Not started"},
+    {name:"Provide background information", status:"Not started"},
+    {name:"Upload E&O proof", status:"Not started"},
+  ].filter(t => !q || (t.name+" "+t.status).toLowerCase().includes(q));
+
+  return `
+    <div class="panel">
+      <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:flex-end">
+        <div>
+          <div style="font-weight:900">${esc(p?.name||"Producer")}</div>
+          <div class="muted" style="font-size:12px">${esc(ps?.name||currentTaskContext.psid)}</div>
+        </div>
+        <div class="row">
+          <button class="btn" onclick="toast('More actions (placeholder)')">…</button>
+          <button class="btn" onclick="currentTaskContext=null; render()">Back</button>
+        </div>
+      </div>
+
+      <div class="list" style="margin-top:12px">
+        ${tasks.length ? tasks.map(t=>`
+          <div class="listRow">
+            <div>
+              <div class="listTitle">${esc(t.name)}</div>
+              <div class="listMeta">Owner: Producer • Approver: OM</div>
+            </div>
+            <div class="chip">${esc(t.status)}</div>
+          </div>
+        `).join("") : `<div class="listRow"><div class="muted">No tasks match your search.</div></div>`}
+      </div>
+    </div>
+  `;
+}
+
+function setSort(key){
+  if(sortKey===key) sortDir *= -1;
+  else { sortKey=key; sortDir=1; }
+  render();
+}
+
+function toggleSelectAll(checked){
+  const q = ($("search").value||"").trim().toLowerCase();
+  const visible = producers.filter(p=>{
+    const bizNames = (p.businessIds||[]).map(id=>businesses.find(b=>b.id===id)?.name||"").join(" ");
+    const hay = (p.name+" "+p.email+" "+(p.npn||"")+" "+p.status+" "+bizNames).toLowerCase();
+    return !q || hay.includes(q);
+  });
+  visible.forEach(p=>{
+    if(checked) selected.add(p.id);
+    else selected.delete(p.id);
+  });
+  updateActionBar();
+  render();
+}
+function toggleSelect(id,on){
+  if(on) selected.add(id); else selected.delete(id);
+  updateActionBar();
+}
+function updateActionBar(){
+  if(currentScreen!=="producers"){ $("actionBar").style.display="none"; return; }
+
+  const bar = $("actionBar");
+  $("selCount").textContent = `${selected.size} selected`;
+  bar.style.display = selected.size ? "block" : "none";
+}
+
+function clearSelected(){
+  selected.clear();
+  updateActionBar();
+  render();
+}
+
+
+/* ---------- Producer drawers (click in table) ---------- */
+function openProducerBusinesses(pid){
+  const p = producers.find(x=>x.id===pid);
+  const biz = (p.businessIds||[]).map(id=>businesses.find(b=>b.id===id)).filter(Boolean);
+  openStack({
+    type:"drilldown",
+    title:"Businesses",
+    render: ()=> `
+      <div class="panel">
+        <div style="font-weight:900">${esc(p.name)}</div>
+        <div class="muted" style="font-size:12px">${esc(p.email)}</div>
+      </div>
+      <div class="list" style="margin-top:12px">
+        ${biz.length ? biz.map(b=>`
+          <div class="listRow">
+            <div style="min-width:0">
+              <div class="listTitle">${esc(b.name)}</div>
+              <div class="listMeta">${esc(b.type)} • <span class="mono">${esc(b.id)}</span> • <span class="mono">${esc(b.npn||"—")}</span></div>
+            </div>
+          </div>
+        `).join("") : `<div class="listRow"><div class="muted">No businesses assigned.</div></div>`}
+      </div>
+    `
+  });
+}
+
+function openProducerProgress(pid){
+  const p = producers.find(x=>x.id===pid);
+  const by = p.policyProgress?.byPolicy || {};
+  const items = Object.keys(by).map(id=>({id, status:by[id]}));
+  openStack({
+    type:"drilldown",
+    title:"Progress",
+    render: ()=> `
+      <div class="panel">
+        <div style="font-weight:900">${esc(p.name)}</div>
+        <div class="muted" style="font-size:12px">${esc(p.email)}</div>
+      </div>
+      <div class="list" style="margin-top:12px">
+        ${items.length ? items.map(it=>{
+          const ps = allPolicySets.find(x=>x.id===it.id);
+          return `
+            <div class="listRow" style="cursor:pointer" onclick="openTaskList('${p.id}','${it.id}')">
+              <div style="min-width:0">
+                <div class="listTitle">${esc(ps?ps.name:it.id)}</div>
+                <div class="listMeta"><span class="mono">${esc(it.id)}</span></div>
+              </div>
+              <div class="chip">${esc(it.status)}</div>
+            </div>
+          `;
+        }).join("") : `<div class="listRow"><div class="muted">No policy sets assigned.</div></div>`}
+      </div>
+      <div class="muted" style="font-size:12px; margin-top:10px">Click a policy set to view tasks.</div>
+    `
+  });
+}
+function openTaskList(pid, psid){
+  closeAll();
+  currentScreen="tasks";
+  currentTaskContext = {pid, psid};
+  render();
+}
+
+/* ---------- Drawer content ---------- */
+function openDrawer(kind){
+  if(kind==="addProducer") return openAddProducer();
+  if(kind==="bulkInvite") return openBulkInvite();
+  if(kind==="assignBusinesses") return openAssignBusinesses();
+  if(kind==="bulkPolicySets") return openBulkPolicySets();
+  if(kind==="message") return openMessage();
+  if(kind==="offboard") return openOffboard();
+}
+
+function openAddProducer(){
+  addState = { name:"", email:"", npn:"", biz:new Set(), optional:new Set() };
+  openStack({
+    type:"drilldown",
+    title:"Add producer",
+    render: ()=> addProducerView()
+  });
+}
+
+function openBulkInvite(){
+  bulkState = { biz:new Set(), fileAttached:false };
+  openStack({
+    type:"drilldown",
+    title:"Bulk invite (CSV)",
+    render: ()=> bulkInviteView()
+  });
+}
+
+function openAssignBusinesses(){
+  if(!selected.size) return toast("Select producer(s) first");
+  assignState = { biz:new Set() };
+  openStack({
+    type:"drilldown",
+    title:"Assign business(es)",
+    render: ()=> assignBusinessesView()
+  });
+}
+
+function openBulkPolicySets(){
+  if(!selected.size) return toast("Select producer(s) first");
+  bulkPsState = { chosen:new Set() };
+  openStack({
+    type:"drilldown",
+    title:"Modify policy sets",
+    render: ()=> bulkPolicySetsView()
+  });
+}
+
+function openMessage(){
+  if(!selected.size) return toast("Select producer(s) first");
+  msgState = { template:"", body:"" };
+  openStack({
+    type:"drilldown",
+    title:"Send message",
+    render: ()=> messageView()
+  });
+}
+
+function openOffboard(){
+  if(!selected.size) return toast("Select producer(s) first");
+  offState = { step:1, reason:"Producer no longer with business", note:"" };
+  openStack({
+    type:"wizard",
+    title:"Offboard producers",
+    render: ()=> offboardView()
+  });
+}
+
+/* ---------- Layered selector drawers (always on top) ---------- */
+function openBusinessSelector(targetKind){
+  // targetKind: add, bulk, assign
+  bizSel = { target:targetKind, staging: new Set(getBizSet(targetKind)) };
+  openStack({
+    type:"drilldown",
+    title:"Select businesses",
+    render: ()=> businessSelectorView(),
+    topmost:true
+  });
+}
+function openOptionalSelector(){
+  // optional policy set toggles for add producer (derived from selected businesses)
+  openStack({
+    type:"drilldown",
+    title:"Optional policy sets",
+    render: ()=> optionalSelectorView(),
+    topmost:true
+  });
+}
+
+/* ---------- Views ---------- */
+let addState=null, bulkState=null, assignState=null, bulkPsState=null, msgState=null, offState=null, bizSel=null;
+
+function addProducerView(){
+  const meta = consolidatePolicy(addState.biz);
+  return `
+    <div class="panel">
+      <div class="row">
+        <div style="flex:1 1 220px">
+          <div style="font-weight:900">Full name</div>
+          <div style="margin-top:6px"><input class="input" style="width:100%" value="${esc(addState.name)}" oninput="addState.name=this.value"/></div>
+        </div>
+        <div style="flex:1 1 220px">
+          <div style="font-weight:900">Email</div>
+          <div style="margin-top:6px"><input class="input" style="width:100%" value="${esc(addState.email)}" oninput="addState.email=this.value"/></div>
+        </div>
+        <div style="flex:0 0 180px">
+          <div style="font-weight:900" class="mono">NPN (optional)</div>
+          <div style="margin-top:6px"><input class="input mono" style="width:100%" value="${esc(addState.npn)}" oninput="addState.npn=this.value"/></div>
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <div style="font-weight:900">Businesses</div>
+        <div class="muted" style="font-size:12px">Layers a selector drawer (no clipped dropdowns).</div>
+        <div style="margin-top:6px">
+          <button class="btn" style="width:100%; display:flex; justify-content:space-between; align-items:center" onclick="openBusinessSelector('add')">
+            <span>${bizSummary(addState.biz)}</span>
+            <span class="chip">${addState.biz.size}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:12px">
+      <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:flex-end">
+        <div>
+          <div style="font-weight:900">Policy sets (derived)</div>
+          <div class="muted" style="font-size:12px">Consolidated across selected businesses. Optional starts OFF.</div>
+        </div>
+        <span class="chip">${meta.req} required • ${meta.opt} optional</span>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <button class="btn" onclick="openStack({type:'drilldown', title:'Required policy sets', render: ()=> requiredListView(addState.biz), topmost:true})">Required</button>
+        <button class="btn" onclick="openOptionalSelector()">Optional</button>
+      </div>
+      <div class="muted" style="font-size:12px; margin-top:10px">Optional policy sets: use “Assigned / Not assigned”.</div>
+    </div>
+
+    ${drawerFooter([
+      {label:"Cancel", cls:"btn", on:"closeTop()"},
+      {label:"Send invite", cls:"btn", on:"submitAddProducer()"}
+    ])}
+  `;
+}
+
+function bulkInviteView(){
+  const meta = consolidatePolicy(bulkState.biz);
+  return `
+    <div class="panel">
+      <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center">
+        <div>
+          <div style="font-weight:900">CSV template</div>
+          <div class="muted" style="font-size:12px">Columns: name, email, npn, business_ids (optional)</div>
+        </div>
+        <button class="btn" onclick="toast('Template downloaded')">Download template</button>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:12px">
+      <div style="font-weight:900">Upload CSV</div>
+      <div class="row" style="margin-top:10px; align-items:center">
+        <button class="btn" onclick="bulkState.fileAttached=true; rerenderTop()">Attach sample CSV</button>
+        ${bulkState.fileAttached ? `<span class="chip">producers.csv attached</span>` : `<span class="muted" style="font-size:12px">No file attached</span>`}
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:12px">
+      <div style="font-weight:900">Businesses (optional)</div>
+      <div class="muted" style="font-size:12px">Applies to all rows in this upload (prototype simplification).</div>
+      <div style="margin-top:6px">
+        <button class="btn" style="width:100%; display:flex; justify-content:space-between; align-items:center" onclick="openBusinessSelector('bulk')">
+          <span>${bizSummary(bulkState.biz)}</span>
+          <span class="chip">${bulkState.biz.size}</span>
+        </button>
+      </div>
+      <div style="margin-top:10px"><span class="chip">${meta.req} required • ${meta.opt} optional</span></div>
+    </div>
+
+    ${drawerFooter([
+      {label:"Cancel", cls:"btn", on:"closeTop()"},
+      {label:"Send invites", cls:"btn", on:"submitBulkInvite()"}
+    ])}
+  `;
+}
+
+function assignBusinessesView(){
+  return `
+    <div class="panel">
+      <div style="font-weight:900">Selected producers</div>
+      <div class="muted" style="font-size:12px">${esc(selSummary())}</div>
+    </div>
+
+    <div class="panel" style="margin-top:12px">
+      <div style="font-weight:900">Business(es)</div>
+      <div class="muted" style="font-size:12px">Opens selector drawer above this drawer.</div>
+      <div style="margin-top:6px">
+        <button class="btn" style="width:100%; display:flex; justify-content:space-between; align-items:center" onclick="openBusinessSelector('assign')">
+          <span>${bizSummary(assignState.biz)}</span>
+          <span class="chip">${assignState.biz.size}</span>
+        </button>
+      </div>
+    </div>
+
+    ${drawerFooter([
+      {label:"Cancel", cls:"btn", on:"closeTop()"},
+      {label:"Apply", cls:"btn", on:"applyAssignBusinesses()"}
+    ])}
+  `;
+}
+
+function bulkPolicySetsView(){
+  const union = unionOptionalForSelected();
+  return `
+    <div class="panel">
+      <div style="font-weight:900">Selected producers</div>
+      <div class="muted" style="font-size:12px">${esc(selSummary())}</div>
+      <div class="muted" style="font-size:12px; margin-top:8px">Optional policy sets apply only when available via assigned businesses.</div>
+    </div>
+
+    <div class="panel" style="margin-top:12px">
+      <div style="font-weight:900">Optional policy sets</div>
+      <div class="muted" style="font-size:12px">Assigned / Not assigned</div>
+      <div class="list" style="margin-top:10px">
+        ${union.length ? union.map(item=>{
+          const on = bulkPsState.chosen.has(item.id);
+          const state = on ? "Assigned" : "Not assigned";
+          const tags = item.assoc.map(b=>`<span class="chip">${esc(b.name)} • ${esc(b.type)}</span>`).join("");
+          return `
+            <div class="listRow">
+              <div style="min-width:0">
+                <div class="listTitle">${esc(item.name)}</div>
+                <div class="listMeta"><span class="mono">${esc(item.id)}</span></div>
+                <div class="tags">${tags}</div>
+              </div>
+              <div class="toggleRow">
+                <span class="stateText">${state}</span>
+                <input class="check" type="checkbox" ${on?"checked":""} onchange="toggleBulkPs('${item.id}', this.checked)"/>
+              </div>
+            </div>
+          `;
+        }).join("") : `<div class="listRow"><div class="muted">No optional policy sets available for this selection.</div></div>`}
+      </div>
+    </div>
+
+    ${drawerFooter([
+      {label:"Cancel", cls:"btn", on:"closeTop()"},
+      {label:"Apply", cls:"btn", on:"applyBulkPolicySets()"}
+    ])}
+  `;
+}
+
+function messageView(){
+  return `
+    <div class="panel">
+      <div style="font-weight:900">Recipients</div>
+      <div class="muted" style="font-size:12px">${esc(selSummary())}</div>
+    </div>
+
+    <div class="panel" style="margin-top:12px">
+      <div style="font-weight:900">Template</div>
+      <div style="margin-top:6px">
+        <select class="input" style="width:100%" onchange="setMsgTemplate(this.value)">
+          <option value="">— Choose —</option>
+          <option value="reminder">Reminder to continue onboarding</option>
+          <option value="missing">Request missing information</option>
+          <option value="review">Needs review — please respond</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:12px">
+      <div style="font-weight:900">Message</div>
+      <div style="margin-top:6px">
+        <textarea class="input" style="width:100%; height:140px; resize:vertical" oninput="msgState.body=this.value" placeholder="Write a short note…">${esc(msgState.body||"")}</textarea>
+      </div>
+      <div class="muted" style="font-size:12px; margin-top:8px">MVP: sends email (no in-app inbox).</div>
+    </div>
+
+    ${drawerFooter([
+      {label:"Cancel", cls:"btn", on:"closeTop()"},
+      {label:"Send", cls:"btn", on:"sendMsg()"}
+    ])}
+  `;
+}
+
+function offboardView(){
+  const s = offState.step;
+  const head = `
+    <div class="panel">
+      <div style="font-weight:900">Recipients</div>
+      <div class="muted" style="font-size:12px">${esc(selSummary())}</div>
+    </div>
+  `;
+  if(s===1){
+    return `
+      ${head}
+      <div class="panel" style="margin-top:12px">
+        <div style="font-weight:900">Reason</div>
+        <div style="margin-top:6px">
+          <select class="input" style="width:100%" onchange="offState.reason=this.value">
+            <option ${offState.reason==="Producer no longer with business"?"selected":""}>Producer no longer with business</option>
+            <option ${offState.reason==="Compliance issue"?"selected":""}>Compliance issue</option>
+            <option ${offState.reason==="Duplicate / created in error"?"selected":""}>Duplicate / created in error</option>
+            <option ${offState.reason==="Other"?"selected":""}>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:12px">
+        <div style="font-weight:900">Note (optional)</div>
+        <div style="margin-top:6px">
+          <textarea class="input" style="width:100%; height:110px; resize:vertical" oninput="offState.note=this.value" placeholder="Add a short note…">${esc(offState.note||"")}</textarea>
+        </div>
+      </div>
+      ${drawerFooter([
+        {label:"Cancel", cls:"btn", on:"closeTop()"},
+        {label:"Next", cls:"btn", on:"offState.step=2; rerenderTop()"}
+      ])}
+    `;
+  } else {
+    return `
+      ${head}
+      <div class="panel" style="margin-top:12px">
+        <div style="font-weight:900">Review</div>
+        <div class="muted" style="font-size:12px; margin-top:8px">Reason: <strong>${esc(offState.reason)}</strong></div>
+        <div class="muted" style="font-size:12px; margin-top:8px">Note: ${esc(offState.note||"—")}</div>
+      </div>
+      <div class="panel" style="margin-top:12px">
+        <div style="font-weight:900">What happens next</div>
+        <div class="muted" style="font-size:12px; margin-top:6px">• Status becomes <strong>Offboarding</strong></div>
+        <div class="muted" style="font-size:12px">• Email notification is sent (MVP)</div>
+      </div>
+      ${drawerFooter([
+        {label:"Back", cls:"btn", on:"offState.step=1; rerenderTop()"},
+        {label:"Offboard", cls:"btn", on:"confirmOffboard()"}
+      ])}
+    `;
+  }
+}
+
+function businessSelectorView(){
+  const q = (bizSel.q||"").toLowerCase().trim();
+  const list = businesses.filter(b=>{
+    if(!q) return true;
+    return (b.name+" "+b.type+" "+b.id+" "+(b.npn||"")).toLowerCase().includes(q);
+  });
+  const rows = list.map(b=>{
+    const on = bizSel.staging.has(b.id);
+    return `
+      <div class="listRow">
+        <div style="min-width:0">
+          <div class="listTitle">${esc(b.name)}</div>
+          <div class="listMeta">${esc(b.type)} • <span class="mono">${esc(b.id)}</span> • <span class="mono">${esc(b.npn||"—")}</span></div>
+        </div>
+        <input class="check" type="checkbox" ${on?"checked":""} onchange="${on?`bizSel.staging.delete('${b.id}')`:`bizSel.staging.add('${b.id}')`}; rerenderTop()" />
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <div class="selectorShell">
+      <div class="selectorTop">
+        <input class="input searchPrimary" style="width:100%" placeholder="Search businesses…" value="${esc(bizSel.q||"")}"
+          oninput="bizSel.q=this.value; rerenderTop()" />
+        <div class="muted" style="font-size:12px; margin-top:8px">Check one or more businesses.</div>
+      </div>
+
+      <div class="selectorList">
+        <div class="list" style="margin-top:0">
+          ${rows}
+          ${!list.length ? `<div class="listRow"><div class="muted">No matches.</div></div>`:""}
+        </div>
+      </div>
+
+      <div class="selectorFoot">
+        <button class="btn" onclick="bizSel.staging=new Set(); rerenderTop()">Clear</button>
+        <button class="btn" onclick="applyBizSelection()">Done</button>
+      </div>
+    </div>
+  `;
+}
+
+function requiredListView(bizSet){
+  const {reqList} = derivePolicyLists(bizSet);
+  return `
+    <div class="list">
+      ${reqList.length ? reqList.map(ps=>{
+        const tags = ps.assoc.map(b=>`<span class="chip">${esc(b.name)} • ${esc(b.type)}</span>`).join("");
+        return `
+          <div class="listRow">
+            <div style="min-width:0">
+              <div class="listTitle">${esc(ps.name)}</div>
+              <div class="listMeta"><span class="mono">${esc(ps.id)}</span></div>
+              ${tags?`<div class="tags">${tags}</div>`:""}
+            </div>
+            <span class="chip">required</span>
+          </div>
+        `;
+      }).join("") : `<div class="listRow"><div class="muted">None.</div></div>`}
+    </div>
+    ${drawerFooter([{label:"Done", cls:"btn", on:"closeTop()"}])}
+  `;
+}
+
+function optionalSelectorView(){
+  const {optList} = derivePolicyLists(addState.biz);
+  return `
+    <div class="panel">
+      <div style="font-weight:900">Optional policy sets</div>
+      <div class="muted" style="font-size:12px; margin-top:6px">Assign optional policy sets for this producer.</div>
+    </div>
+    <div class="list" style="margin-top:12px">
+      ${optList.length ? optList.map(ps=>{
+        const on = addState.optional.has(ps.id);
+        const state = on ? "Assigned" : "Not assigned";
+        const tags = ps.assoc.map(b=>`<span class="chip">${esc(b.name)} • ${esc(b.type)}</span>`).join("");
+        return `
+          <div class="listRow">
+            <div style="min-width:0">
+              <div class="listTitle">${esc(ps.name)}</div>
+              <div class="listMeta"><span class="mono">${esc(ps.id)}</span></div>
+              ${tags?`<div class="tags">${tags}</div>`:""}
+            </div>
+            <div class="toggleRow">
+              <span class="stateText">${state}</span>
+              <input class="check" type="checkbox" ${on?"checked":""} onchange="${on?`addState.optional.delete('${ps.id}')`:`addState.optional.add('${ps.id}')`}; rerenderTop()" />
+            </div>
+          </div>
+        `;
+      }).join("") : `<div class="listRow"><div class="muted">None.</div></div>`}
+    </div>
+    ${drawerFooter([{label:"Done", cls:"btn", on:"closeTop()"}])}
+  `;
+}
+
+/* ---------- Actions ---------- */
+function submitAddProducer(){
+  if(!addState.email.trim()){ toast("Add producer: email is required"); return; }
+  const id = "P-" + Math.floor(1000 + Math.random()*9000);
+  const bizIds = [...addState.biz];
+  const by = {};
+  // org required
+  orgPolicySets.forEach(ps=> by[ps.id]="Not started");
+  // business required and optional assigned
+  businessPolicySets.forEach(ps=>{
+    const assoc = Object.keys(ps.businesses).filter(bid => bizIds.includes(bid));
+    if(!assoc.length) return;
+    const anyReq = assoc.some(bid=>ps.businesses[bid]==="required");
+    const anyOpt = assoc.some(bid=>ps.businesses[bid]==="optional");
+    if(anyReq) by[ps.id]="Not started";
+    else if(anyOpt && addState.optional.has(ps.id)) by[ps.id]="Not started";
+  });
+  const total = Object.keys(by).length;
+  producers.unshift({
+    id, name:addState.name||"New producer", email:addState.email, npn:addState.npn, businessIds:bizIds,
+    status:"Invited", created:"2026-02-11", modified:"2026-02-11", createdBy:"OM",
+    policyProgress:{done:0,total,byPolicy:by}
+  });
+  closeAll();
+  toast(`Invite sent: ${addState.email}`);
+  render();
+}
+
+function submitBulkInvite(){
+  if(!bulkState.fileAttached){ toast("Bulk invite: attach a CSV to continue"); return; }
+  closeAll();
+  toast("Bulk invite sent: 3 producer(s)");
+}
+
+function applyAssignBusinesses(){
+  const addBiz = [...assignState.biz];
+  if(!addBiz.length){ toast("Assign businesses: select at least one"); return; }
+  selected.forEach(pid=>{
+    const p = producers.find(x=>x.id===pid);
+    if(!p) return;
+    const set = new Set(p.businessIds||[]);
+    addBiz.forEach(b=>set.add(b));
+    p.businessIds = [...set];
+    p.modified="2026-02-11";
+  });
+  closeAll();
+  toast(`Businesses assigned for ${selected.size} producer(s)`);
+  render();
+}
+
+function toggleBulkPs(id,on){
+  if(on) bulkPsState.chosen.add(id); else bulkPsState.chosen.delete(id);
+  rerenderTop();
+}
+function applyBulkPolicySets(){
+  const chosen = new Set(bulkPsState.chosen);
+  selected.forEach(pid=>{
+    const p = producers.find(x=>x.id===pid);
+    if(!p) return;
+    const by = p.policyProgress.byPolicy || {};
+    // required org
+    orgPolicySets.forEach(ps=>{ if(!by[ps.id]) by[ps.id]="Not started"; });
+    // required business
+    businessPolicySets.forEach(ps=>{
+      const assoc = Object.keys(ps.businesses).filter(bid => (p.businessIds||[]).includes(bid));
+      if(!assoc.length) return;
+      const anyReq = assoc.some(bid=>ps.businesses[bid]==="required");
+      const anyOpt = assoc.some(bid=>ps.businesses[bid]==="optional");
+      if(anyReq) by[ps.id]=by[ps.id]||"Not started";
+      else if(anyOpt){
+        if(chosen.has(ps.id)) by[ps.id]=by[ps.id]||"Not started";
+        else if(by[ps.id]) delete by[ps.id];
+      }
+    });
+    p.policyProgress.byPolicy = by;
+    p.policyProgress.total = Object.keys(by).length;
+    p.modified="2026-02-11";
+  });
+  closeAll();
+  toast(`Policy sets updated for ${selected.size} producer(s)`);
+  render();
+}
+
+function setMsgTemplate(key){
+  const map = {
+    reminder:"Quick reminder to continue onboarding so you can be ready to sell.",
+    missing:"We’re missing a few items needed to complete onboarding. Please review your task list.",
+    review:"We have a question about your onboarding information. Please reply so we can proceed."
+  };
+  msgState.body = map[key] || "";
+  rerenderTop();
+}
+function sendMsg(){
+  closeAll();
+  toast(`Message sent to ${selected.size} producer(s)`);
+}
+function confirmOffboard(){
+  selected.forEach(pid=>{
+    const p = producers.find(x=>x.id===pid);
+    if(p) { p.status="Offboarding"; p.modified="2026-02-11"; }
+  });
+  closeAll();
+  toast(`Offboarding started for ${selected.size} producer(s)`);
+  render();
+}
+
+/* ---------- Policy derivation ---------- */
+function consolidatePolicy(bizSet){
+  const {reqList,optList} = derivePolicyLists(bizSet);
+  return {req:reqList.length, opt:optList.length};
+}
+function derivePolicyLists(bizSet){
+  const bizIds = [...bizSet];
+  const reqList = [];
+  const optList = [];
+  // org always required
+  orgPolicySets.forEach(ps=> reqList.push({id:ps.id,name:ps.name,assoc:[]}));
+  businessPolicySets.forEach(ps=>{
+    const assocIds = Object.keys(ps.businesses).filter(bid=>bizIds.includes(bid));
+    if(!assocIds.length) return;
+    const assoc = assocIds.map(id=>businesses.find(b=>b.id===id)).filter(Boolean);
+    const anyReq = assocIds.some(id=>ps.businesses[id]==="required");
+    const anyOpt = assocIds.some(id=>ps.businesses[id]==="optional");
+    if(anyReq) reqList.push({id:ps.id,name:ps.name,assoc});
+    else if(anyOpt) optList.push({id:ps.id,name:ps.name,assoc});
+  });
+  return {reqList,optList};
+}
+function unionOptionalForSelected(){
+  const union = new Map(); // psid -> {name, assocIds:Set}
+  selected.forEach(pid=>{
+    const p = producers.find(x=>x.id===pid);
+    if(!p) return;
+    (p.businessIds||[]).forEach(bid=>{
+      businessPolicySets.forEach(ps=>{
+        if(ps.businesses[bid]==="optional"){
+          if(!union.has(ps.id)) union.set(ps.id, {id:ps.id, name:ps.name, assocIds:new Set()});
+          union.get(ps.id).assocIds.add(bid);
+        }
+      });
+    });
+  });
+  return [...union.values()].map(x=>({
+    id:x.id, name:x.name,
+    assoc:[...x.assocIds].map(id=>businesses.find(b=>b.id===id)).filter(Boolean)
+  }));
+}
+
+/* ---------- Drawer stack impl ---------- */
+function openStack({type,title,render,topmost=false}){
+  // we use a single overlay/drawer, but maintain stack in memory and re-render current top
+  stack.push({type,title,render,topmost});
+  rerenderTop();
+}
+function rerenderTop(){
+  const top = stack[stack.length-1];
+  if(!top){ closeAll(); return; }
+  ov.style.display="block";
+  dr.style.display="flex";
+  // z-index logic: topmost layers above everything
+  const baseZ = top.topmost ? 5000 : 1000 + (stack.length-1)*10;
+  ov.style.zIndex = baseZ;
+  dr.style.zIndex = baseZ + 1;
+  dr.classList.toggle("wizard", top.type==="wizard");
+  dr.classList.toggle("drilldown", top.type!=="wizard");
+  dr.innerHTML = `
+    <div class="drawerHead">
+      <div style="min-width:0">
+        <div style="font-weight:900">${esc(top.title)}</div>
+        ${top.type==="wizard" ? `<div class="stepper">
+          <span class="step ${offState?.step===1?"active":""}">1. Details</span>
+          <span class="step ${offState?.step===2?"active":""}">2. Review</span>
+        </div>` : `<div class="muted" style="font-size:12px">Right drawer</div>`}
+      </div>
+      <button class="btn" onclick="closeTop()">Close</button>
+    </div>
+    <div class="drawerBody ${top.title==="Select businesses"?"noPad":""}">${top.render()}</div>
+  `;
+}
+function drawerFooter(buttons){
+  // buttons: {label, cls, on}
+  return `<div class="drawerFoot">${buttons.map(b=>`<button class="${b.cls}" onclick="${b.on}">${esc(b.label)}</button>`).join("")}</div>`;
+}
+function closeTop(){
+  stack.pop();
+  if(!stack.length){ closeAll(); return; }
+  rerenderTop();
+}
+function closeAll(){
+  stack = [];
+  ov.style.display="none";
+  dr.style.display="none";
+  dr.innerHTML="";
+}
+function getBizSet(kind){
+  if(kind==="add") return addState.biz;
+  if(kind==="bulk") return bulkState.biz;
+  if(kind==="assign") return assignState.biz;
+  return new Set();
+}
+function applyBizSelection(){
+  const ids = new Set(bizSel.staging);
+  if(bizSel.target==="add"){
+    addState.biz = ids;
+    // clear optional assignments that no longer available
+    const {optList} = derivePolicyLists(addState.biz);
+    const allowed = new Set(optList.map(x=>x.id));
+    addState.optional = new Set([...addState.optional].filter(id=>allowed.has(id)));
+  } else if(bizSel.target==="bulk"){
+    bulkState.biz = ids;
+  } else if(bizSel.target==="assign"){
+    assignState.biz = ids;
+  }
+  closeTop(); // close selector
+  rerenderTop(); // rerender underlying drawer
+}
+
+function bizSummary(set){
+  const ids = [...set];
+  if(!ids.length) return "Select business(es)…";
+  const names = ids.map(id=>businesses.find(b=>b.id===id)?.name).filter(Boolean);
+  return names.slice(0,2).join(", ") + (names.length>2 ? ` +${names.length-2}` : "");
+}
+function selSummary(){
+  const ids = [...selected];
+  const names = ids.map(id=>producers.find(p=>p.id===id)?.name).filter(Boolean);
+  return names.slice(0,3).join(", ") + (names.length>3 ? ` +${names.length-3}` : "");
+}
+
+/* ---------- Init ---------- */
+render();
+updateActionBar();
+</script>
+</body>
+</html>

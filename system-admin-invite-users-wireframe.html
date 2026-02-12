@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>System Admin — Invite Users (Wireframe)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --line:#111111;
+      --line2:#bdbdbd;
+      --radius:10px;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:var(--sans); background:var(--bg); color:var(--text)}
+    a{color:inherit}
+    .topbar{position:sticky; top:0; z-index:40; background:#fff; border-bottom:2px solid var(--line)}
+    .topbar-inner{max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; padding:12px 16px}
+    .brand{display:flex; gap:10px; align-items:center; font-weight:900}
+    .logo{width:18px; height:18px; border:2px solid var(--line); background:#fff}
+
+    .container{max-width:none; margin:0; padding:0}
+    .pageShell{
+      display:flex;
+      flex-direction:column;
+      height:calc(100vh - 52px); /* approx topbar height */
+      max-width:1100px;
+      margin:0 auto;
+      padding:18px 16px 16px;
+    }
+    .pageHeaderFixed{
+      flex:0 0 auto;
+      background:#fff;
+      padding-bottom:12px;
+    }
+    .tableRegion{
+      flex:1 1 auto;
+      overflow:auto;
+      padding-bottom:12px;
+    }
+    body.hasAction .tableRegion{ padding-bottom:110px; }
+
+    h1{margin:0; font-size:26px; font-weight:900; letter-spacing:-.2px}
+    .subtitle{margin:8px 0 0; color:var(--muted); line-height:1.35; font-weight:700}
+
+    .toolbar{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-top:12px}
+    .input{border:2px solid var(--line); background:#fff; color:var(--text); border-radius:10px; padding:9px 12px; font-size:13px; width:360px; outline:none; font-weight:700}
+    button{font-family:inherit; border:2px solid var(--line); background:#fff; color:var(--text); padding:9px 12px; border-radius:10px; cursor:pointer; font-weight:900; font-size:13px}
+    button:hover{background:#f5f5f5}
+    .primary{background:#111; color:#fff}
+    .primary:hover{background:#000}
+    .quiet{border-color:var(--line2); color:var(--muted); font-weight:800}
+    .kbd{font-family:var(--mono); font-size:11px; color:var(--muted); border:2px solid var(--line2); padding:3px 8px; border-radius:999px}
+
+    .tablewrap{border:2px solid var(--line); border-radius:var(--radius); overflow:hidden; margin-top:12px}
+    table{width:100%; border-collapse:collapse; font-size:13px}
+    thead{background:#f5f5f5; color:var(--text); font-weight:900; position:sticky; top:0; z-index:5}
+    th, td{padding:10px 10px; border-bottom:2px solid var(--line2); text-align:left; vertical-align:top}
+    tbody tr:hover{background:#fafafa}
+    .check{width:18px; height:18px}
+    .badge{display:inline-block; border:2px solid var(--line); border-radius:999px; padding:2px 8px; font-size:11px; font-weight:900}
+    .muted{color:var(--muted); font-weight:800}
+
+    /* Action bar (only when selection exists) */
+    .actionbar{
+      position:fixed; left:0; right:0; bottom:0; z-index:60;
+      background:#fff; border-top:2px solid var(--line);
+    }
+    .actionbar-inner{
+      max-width:1100px; margin:0 auto;
+      padding:10px 16px;
+      display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;
+    }
+    .hidden{display:none !important}
+
+    /* Modal */
+    .modalOverlay{
+      position:fixed; inset:0; background:rgba(0,0,0,.25);
+      display:none; z-index:80;
+      align-items:center; justify-content:center;
+      padding:16px;
+    }
+    .modal{
+      width:min(760px, 96vw);
+      background:#fff;
+      border:2px solid var(--line);
+      border-radius:var(--radius);
+      padding:14px;
+      max-height:82vh;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+    .modalHeader{
+      display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;
+      padding-bottom:10px;
+      border-bottom:2px solid var(--line2);
+    }
+    .modalHeader h3{margin:0 0 6px; font-size:16px; font-weight:900}
+    .modalHeader p{margin:0; color:var(--muted); font-weight:700; line-height:1.35; font-size:13px}
+    .modalBodyScroll{
+      overflow:auto;
+      padding-top:12px;
+      padding-bottom:12px;
+      flex:1 1 auto;
+    }
+    .modalFooterFixed{
+      border-top:2px solid var(--line2);
+      padding-top:12px;
+      display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap;
+      flex:0 0 auto;
+      background:#fff;
+    }
+
+    .panel{padding:12px; border-radius:var(--radius); border:2px solid var(--line2); background:#fff}
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    label{font-weight:900; font-size:13px}
+    select{border:2px solid var(--line); border-radius:10px; padding:9px 12px; font-weight:800; font-size:13px; background:#fff}
+    .dropzone{
+      border:2px dashed var(--line2);
+      border-radius:var(--radius);
+      padding:14px;
+      background:#fff;
+    }
+    .dropzone strong{display:block; margin-bottom:6px}
+    .filechip{
+      margin-top:10px;
+      display:inline-flex; gap:8px; align-items:center;
+      border:2px solid var(--line); border-radius:999px;
+      padding:6px 10px; font-weight:900; font-size:12px;
+    }
+
+    /* Toast */
+    .toast{
+      position:fixed; left:50%; transform:translateX(-50%);
+      bottom:86px;
+      background:#fff; border:2px solid var(--line);
+      padding:8px 10px; border-radius:999px;
+      color:var(--text); font-size:13px; z-index:90; font-weight:900;
+      display:none;
+    }
+
+    @media (max-width:980px){
+      .input{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>Wireframe Prototype</div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center">
+        <div class="kbd">System Admin</div>
+        <div class="kbd">Users</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="pageShell">
+      <div class="pageHeaderFixed">
+        <h1>Internal Users</h1>
+        <div class="subtitle">Admins and Operations Managers who can configure and run onboarding.</div>
+
+        <div class="toolbar">
+          <input id="search" class="input" placeholder="Search by name or email…" oninput="render()" />
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+            <button class="quiet" onclick="openBulkInvite()">Bulk invite (CSV)</button>
+            <button class="primary" onclick="openAddUser()">Add user</button>
+          </div>
+        </div>
+
+        <div class="toolbar" style="margin-top:10px">
+          <div class="kbd" id="selectionHint">No rows selected</div>
+          <div class="kbd">Tip: select rows to deactivate or change role</div>
+        </div>
+      </div>
+
+      <div class="tableRegion">
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:42px"><input type="checkbox" class="check" onclick="toggleSelectAll(this)" /></th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Last active</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTION BAR -->
+  <div id="actionbar" class="actionbar hidden">
+    <div class="actionbar-inner">
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+        <div style="font-weight:900" id="selectedCount">0 selected</div>
+        <div class="kbd" id="actionContext">Actions apply to selected users</div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+        <button class="quiet" onclick="clearSelection()">Clear</button>
+        <button class="quiet" onclick="openChangeRole()">Change role</button>
+        <button class="primary" onclick="openDeactivate()">Deactivate</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD USER MODAL -->
+  <div id="addOverlay" class="modalOverlay" onclick="closeModal(event,'addOverlay')">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modalHeader">
+        <div>
+          <h3>Add user</h3>
+          <p>Invite an internal user. They’ll receive an email to set up access.</p>
+        </div>
+        <button class="quiet" onclick="hide('addOverlay')">Close</button>
+      </div>
+
+      <div class="modalBodyScroll">
+        <div class="panel">
+          <div class="row">
+            <div style="flex:1 1 260px">
+              <label>Name</label>
+              <div style="margin-top:6px"><input id="addName" class="input" style="width:100%" placeholder="e.g., Jamie Smith" /></div>
+            </div>
+            <div style="flex:1 1 260px">
+              <label>Email</label>
+              <div style="margin-top:6px"><input id="addEmail" class="input" style="width:100%" placeholder="e.g., jamie@company.com" /></div>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:12px">
+            <div style="flex:1 1 260px">
+              <label>Role</label>
+              <div style="margin-top:6px">
+                <select id="addRole" style="width:100%">
+                  <option value="Admin">Admin</option>
+                  <option value="Operations Manager" selected>Operations Manager</option>
+                </select>
+              </div>
+            </div>
+            <div style="flex:1 1 260px">
+              <label>Status</label>
+              <div style="margin-top:6px">
+                <select id="addStatus" style="width:100%">
+                  <option value="Active" selected>Active</option>
+                  <option value="Invited">Invited</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:12px">
+          <div style="font-weight:900">What happens next</div>
+          <div class="muted" style="margin-top:6px">
+            The user receives an invitation email. They can sign in and access the admin/ops console based on their role.
+          </div>
+        </div>
+      </div>
+
+      <div class="modalFooterFixed">
+        <button class="quiet" onclick="hide('addOverlay')">Cancel</button>
+        <button class="primary" onclick="submitAddUser()">Send invite</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BULK INVITE MODAL -->
+  <div id="bulkOverlay" class="modalOverlay" onclick="closeModal(event,'bulkOverlay')">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modalHeader">
+        <div>
+          <h3>Bulk invite (CSV)</h3>
+          <p>Upload a CSV to invite multiple internal users at once.</p>
+        </div>
+        <button class="quiet" onclick="hide('bulkOverlay')">Close</button>
+      </div>
+
+      <div class="modalBodyScroll">
+        <div class="panel">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap">
+            <div>
+              <div style="font-weight:900">CSV template</div>
+              <div class="muted" style="margin-top:6px">Use this template so roles and fields match the expected format.</div>
+            </div>
+            <a id="templateLink" class="kbd" href="#" download="internal-users-template.csv" onclick="downloadTemplate(event)">Download template</a>
+          </div>
+        </div>
+
+        <div class="dropzone" style="margin-top:12px">
+          <strong>Upload CSV</strong>
+          <div class="muted">Drag and drop a file here, or choose a file.</div>
+          <div style="margin-top:10px; display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+            <input type="file" id="csvFile" accept=".csv" onchange="handleFile()" />
+            <button class="quiet" onclick="mockAttach()">Attach sample CSV</button>
+          </div>
+          <div id="fileChip" class="filechip" style="display:none">
+            <span>📄</span>
+            <span id="fileName">internal-users.csv</span>
+            <button class="quiet" style="padding:4px 8px" onclick="clearFile()">Remove</button>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:12px">
+          <div style="font-weight:900">Expected columns</div>
+          <div class="muted" style="margin-top:6px; font-family:var(--mono); font-size:12px">
+            name, email, role
+          </div>
+        </div>
+      </div>
+
+      <div class="modalFooterFixed">
+        <button class="quiet" onclick="hide('bulkOverlay')">Cancel</button>
+        <button class="primary" onclick="submitBulkInvite()">Send invites</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHANGE ROLE MODAL -->
+  <div id="roleOverlay" class="modalOverlay" onclick="closeModal(event,'roleOverlay')">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modalHeader">
+        <div>
+          <h3>Change role</h3>
+          <p>Update the role for the selected users.</p>
+        </div>
+        <button class="quiet" onclick="hide('roleOverlay')">Close</button>
+      </div>
+
+      <div class="modalBodyScroll">
+        <div class="panel">
+          <div style="font-weight:900">Selected users</div>
+          <div class="muted" id="roleSelected" style="margin-top:6px"></div>
+        </div>
+
+        <div class="panel" style="margin-top:12px">
+          <label>New role</label>
+          <div style="margin-top:6px">
+            <select id="newRole" style="width:100%">
+              <option value="Admin">Admin</option>
+              <option value="Operations Manager" selected>Operations Manager</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="modalFooterFixed">
+        <button class="quiet" onclick="hide('roleOverlay')">Cancel</button>
+        <button class="primary" onclick="applyRole()">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEACTIVATE MODAL -->
+  <div id="deactivateOverlay" class="modalOverlay" onclick="closeModal(event,'deactivateOverlay')">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modalHeader">
+        <div>
+          <h3>Deactivate users</h3>
+          <p>Deactivated users will lose access immediately.</p>
+        </div>
+        <button class="quiet" onclick="hide('deactivateOverlay')">Close</button>
+      </div>
+
+      <div class="modalBodyScroll">
+        <div class="panel">
+          <div style="font-weight:900">Selected users</div>
+          <div class="muted" id="deactivateSelected" style="margin-top:6px"></div>
+        </div>
+
+        <div class="panel" style="margin-top:12px">
+          <div style="font-weight:900">Confirm</div>
+          <div class="muted" style="margin-top:6px">
+            This is reversible by reactivating the user later.
+          </div>
+        </div>
+      </div>
+
+      <div class="modalFooterFixed">
+        <button class="quiet" onclick="hide('deactivateOverlay')">Cancel</button>
+        <button class="primary" onclick="applyDeactivate()">Deactivate</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+<script>
+  const users = [
+    { id:"U-001", name:"David Manning", email:"david.manning@agentsync.io", role:"Admin", status:"Active", lastActive:"2026-02-10", created:"2025-08-14" },
+    { id:"U-002", name:"Alyssa Chen", email:"alyssa.chen@agentsync.io", role:"Admin", status:"Active", lastActive:"2026-02-08", created:"2025-09-03" },
+    { id:"U-003", name:"Jordan Lee", email:"jordan.lee@agentsync.io", role:"Operations Manager", status:"Active", lastActive:"2026-02-09", created:"2025-10-11" },
+    { id:"U-004", name:"Priya Patel", email:"priya.patel@agentsync.io", role:"Operations Manager", status:"Invited", lastActive:"—", created:"2026-02-06" },
+    { id:"U-005", name:"Sam Rivera", email:"sam.rivera@agentsync.io", role:"Operations Manager", status:"Active", lastActive:"2026-02-07", created:"2025-12-02" },
+    { id:"U-006", name:"Morgan Blake", email:"morgan.blake@agentsync.io", role:"Admin", status:"Active", lastActive:"2026-02-03", created:"2025-07-29" },
+    { id:"U-007", name:"Jamie Smith", email:"jamie.smith@agentsync.io", role:"Operations Manager", status:"Active", lastActive:"2026-02-01", created:"2025-11-19" },
+    { id:"U-008", name:"Taylor Nguyen", email:"taylor.nguyen@agentsync.io", role:"Operations Manager", status:"Deactivated", lastActive:"2025-12-10", created:"2025-06-22" },
+    { id:"U-009", name:"Chris Johnson", email:"chris.johnson@agentsync.io", role:"Admin", status:"Active", lastActive:"2026-01-28", created:"2025-05-12" },
+    { id:"U-010", name:"Riley Kim", email:"riley.kim@agentsync.io", role:"Operations Manager", status:"Active", lastActive:"2026-02-05", created:"2025-10-24" },
+    { id:"U-011", name:"Casey O'Neil", email:"casey.oneil@agentsync.io", role:"Operations Manager", status:"Invited", lastActive:"—", created:"2026-02-02" },
+    { id:"U-012", name:"Alex Garcia", email:"alex.garcia@agentsync.io", role:"Admin", status:"Active", lastActive:"2026-02-06", created:"2025-03-18" },
+  ];
+
+  let selected = new Set();
+
+  function $(id){ return document.getElementById(id); }
+
+  function render(){
+    const q = ($("search").value || "").toLowerCase().trim();
+    const rows = users.filter(u =>
+      u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)
+    );
+
+    $("tbody").innerHTML = rows.map(u => {
+      const checked = selected.has(u.id) ? "checked" : "";
+      const statusBadge = `<span class="badge">${escapeHtml(u.status)}</span>`;
+      return `
+        <tr>
+          <td><input type="checkbox" class="check" ${checked} onchange="toggleRow('${u.id}', this.checked)" /></td>
+          <td><strong>${escapeHtml(u.name)}</strong></td>
+          <td>${escapeHtml(u.email)}</td>
+          <td>${escapeHtml(u.role)}</td>
+          <td>${statusBadge}</td>
+          <td>${escapeHtml(u.lastActive)}</td>
+          <td>${escapeHtml(u.created)}</td>
+        </tr>
+      `;
+    }).join("");
+
+    updateActionbar();
+  }
+
+  function toggleRow(id, on){
+    if(on) selected.add(id);
+    else selected.delete(id);
+    updateActionbar();
+  }
+
+  function toggleSelectAll(cb){
+    const q = ($("search").value || "").toLowerCase().trim();
+    const ids = users.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)).map(u => u.id);
+    ids.forEach(id => cb.checked ? selected.add(id) : selected.delete(id));
+    render();
+  }
+
+  function updateActionbar(){
+    const count = selected.size;
+    $("selectionHint").textContent = count ? `${count} selected` : "No rows selected";
+    $("selectedCount").textContent = `${count} selected`;
+    $("actionbar").classList.toggle("hidden", count === 0);
+    document.body.classList.toggle("hasAction", count !== 0);
+  }
+
+  function clearSelection(){
+    selected = new Set();
+    render();
+  }
+
+  // Modals
+  function show(id){ $(id).style.display = "flex"; }
+  function hide(id){ $(id).style.display = "none"; }
+  function closeModal(e, id){ hide(id); }
+
+  function openAddUser(){
+    $("addName").value="";
+    $("addEmail").value="";
+    $("addRole").value="Operations Manager";
+    $("addStatus").value="Active";
+    show("addOverlay");
+  }
+  function openBulkInvite(){ clearFile(); show("bulkOverlay"); }
+  function openChangeRole(){
+    $("roleSelected").textContent = summarizeSelected();
+    $("newRole").value = "Operations Manager";
+    show("roleOverlay");
+  }
+  function openDeactivate(){
+    $("deactivateSelected").textContent = summarizeSelected();
+    show("deactivateOverlay");
+  }
+
+  function summarizeSelected(){
+    const arr = [...selected].map(id => users.find(u => u.id===id)).filter(Boolean);
+    if(arr.length===0) return "—";
+    const names = arr.slice(0,4).map(x => x.name);
+    return arr.length > 4 ? `${names.join(", ")} + ${arr.length-4} more` : names.join(", ");
+  }
+
+  // Add user
+  function submitAddUser(){
+    const name = $("addName").value.trim() || "New User";
+    const email = $("addEmail").value.trim() || "new.user@company.com";
+    const role = $("addRole").value;
+    const status = $("addStatus").value;
+
+    users.unshift({
+      id: "U-" + String(Math.floor(Math.random()*900)+100),
+      name, email, role, status,
+      lastActive: status === "Invited" ? "—" : "—",
+      created: new Date().toISOString().slice(0,10)
+    });
+
+    hide("addOverlay");
+    toast("Invite sent");
+    render();
+  }
+
+  // Bulk invite
+  function downloadTemplate(e){
+    e.preventDefault();
+    const csv = "name,email,role\nJane Admin,jane.admin@company.com,Admin\nOwen Ops,owen.ops@company.com,Operations Manager\n";
+    const blob = new Blob([csv], {type:"text/csv"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "internal-users-template.csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function handleFile(){
+    const f = $("csvFile").files[0];
+    if(!f) return;
+    $("fileName").textContent = f.name;
+    $("fileChip").style.display = "inline-flex";
+  }
+
+  function mockAttach(){
+    $("fileName").textContent = "internal-users-sample.csv";
+    $("fileChip").style.display = "inline-flex";
+  }
+
+  function clearFile(){
+    $("csvFile").value = "";
+    $("fileChip").style.display = "none";
+  }
+
+  function submitBulkInvite(){
+    if($("fileChip").style.display === "none"){
+      toast("Attach a CSV first");
+      return;
+    }
+    hide("bulkOverlay");
+    toast("Invites sent");
+  }
+
+  // Actions
+  function applyRole(){
+    const role = $("newRole").value;
+    [...selected].forEach(id => {
+      const u = users.find(x => x.id === id);
+      if(u) u.role = role;
+    });
+    hide("roleOverlay");
+    toast("Role updated");
+    render();
+  }
+
+  function applyDeactivate(){
+    [...selected].forEach(id => {
+      const u = users.find(x => x.id === id);
+      if(u) u.status = "Deactivated";
+    });
+    hide("deactivateOverlay");
+    toast("Users deactivated");
+    render();
+  }
+
+  // Toast
+  function toast(msg){
+    const el = $("toast");
+    el.textContent = msg;
+    el.style.display = "block";
+    clearTimeout(window.__t);
+    window.__t = setTimeout(() => el.style.display = "none", 1400);
+  }
+
+  function escapeHtml(str){
+    return String(str)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  render();
+</script>
+</body>
+</html>
